@@ -35,10 +35,6 @@ All filters and charts worked successfully.
 3. Proper prompt engineering improves dashboard quality.
 4. Data visualization enhances environmental analysis.
 
-## Screenshots
-
-(Add screenshots here)
-
 ## Conclusion
 
 Successfully created and tested an Environmental Health Analyzer dashboard and uploaded the project to GitHub.
