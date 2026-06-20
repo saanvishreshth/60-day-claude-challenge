@@ -1,0 +1,704 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #8B6F35;
+    --deep: #0D0A1A;
+    --deep2: #130F22;
+    --deep3: #1A1530;
+    --mid: #231D3D;
+    --card: #1C1733;
+    --border: rgba(201,168,76,0.25);
+    --border-bright: rgba(201,168,76,0.5);
+    --text: #F0EBE0;
+    --text-muted: #A89C80;
+    --text-dim: #6B5F48;
+    --purple: #8B5CF6;
+    --teal: #2DD4BF;
+    --rose: #F472B6;
+    --amber: #FBBF24;
+  }
+
+  body { background: var(--deep); color: var(--text); font-family: 'EB Garamond', serif; }
+
+  .page { max-width: 980px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    text-align: center;
+    padding: 48px 20px 40px;
+    overflow: hidden;
+  }
+  .hero-mandala {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    height: 420px;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .hero-name {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .hero-sub {
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .hero-tags {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border: 0.5px solid var(--border-bright);
+    border-radius: 20px;
+    color: var(--gold);
+    background: rgba(201,168,76,0.07);
+  }
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto 32px;
+    max-width: 300px;
+  }
+  .divider-line { flex: 1; height: 0.5px; background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+  .divider-line.r { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+  .divider-star { color: var(--gold); font-size: 14px; }
+
+  /* ── SECTION TITLES ── */
+  .sec-title {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sec-title::before { content: '◈'; font-size: 10px; opacity: 0.7; }
+
+  /* ── GRID SYSTEMS ── */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .g5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .gcol { display: flex; flex-direction: column; gap: 12px; }
+  .gwide { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .card-accent { border-color: var(--border-bright); }
+  .card-accent::before { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+  .kv-label { font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
+  .kv-val { font-family: 'Cinzel', serif; font-size: 15px; color: var(--gold-light); font-weight: 600; line-height: 1.2; }
+  .kv-sub { font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── PLANET TABLE ── */
+  .ptable { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ptable th { font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); padding: 6px 8px; text-align: left; border-bottom: 0.5px solid var(--border); }
+  .ptable td { padding: 7px 8px; border-bottom: 0.5px solid rgba(201,168,76,0.08); color: var(--text); vertical-align: middle; }
+  .ptable tr:last-child td { border-bottom: none; }
+  .ptable tr:hover td { background: rgba(201,168,76,0.04); }
+  .pname { font-family: 'EB Garamond', serif; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .glyph { font-size: 15px; color: var(--gold); width: 18px; text-align: center; }
+
+  /* ── BADGES ── */
+  .badge { font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+  .b-g { background: rgba(45,212,191,0.12); color: var(--teal); border: 0.5px solid rgba(45,212,191,0.3); }
+  .b-r { background: rgba(244,114,182,0.1); color: var(--rose); border: 0.5px solid rgba(244,114,182,0.25); }
+  .b-y { background: rgba(251,191,36,0.1); color: var(--amber); border: 0.5px solid rgba(251,191,36,0.25); }
+  .b-p { background: rgba(139,92,246,0.12); color: var(--purple); border: 0.5px solid rgba(139,92,246,0.3); }
+  .b-gold { background: rgba(201,168,76,0.12); color: var(--gold-light); border: 0.5px solid var(--border-bright); }
+
+  /* ── YOGA ITEMS ── */
+  .yoga-item { padding: 10px 0; border-bottom: 0.5px solid rgba(201,168,76,0.08); }
+  .yoga-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .yoga-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold-light); margin-bottom: 4px; }
+  .yoga-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── PROSE ── */
+  .prose { font-size: 13px; color: var(--text-muted); line-height: 1.75; }
+  .prose strong { color: var(--gold-light); font-weight: 500; }
+
+  /* ── DASHA TIMELINE ── */
+  .dasha-item { display: flex; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid rgba(201,168,76,0.08); align-items: flex-start; }
+  .dasha-item:last-child { border-bottom: none; }
+  .dasha-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-dim); margin-top: 5px; flex-shrink: 0; }
+  .dasha-dot.active { background: var(--gold); box-shadow: 0 0 8px rgba(201,168,76,0.6); }
+  .dasha-period { font-family: 'Inter', sans-serif; font-size: 10px; color: var(--text-dim); }
+  .dasha-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold-light); margin-bottom: 1px; }
+  .dasha-note { font-size: 11px; color: var(--text-muted); }
+
+  /* ── FORECAST TABLE ── */
+  .ftable { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  .ftable th { font-family: 'Inter', sans-serif; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); padding: 8px 10px; text-align: left; border-bottom: 0.5px solid var(--border); background: rgba(201,168,76,0.04); }
+  .ftable td { padding: 9px 10px; border-bottom: 0.5px solid rgba(201,168,76,0.07); color: var(--text-muted); vertical-align: top; line-height: 1.5; }
+  .ftable tr.best td { background: rgba(45,212,191,0.05); }
+  .ftable tr.hard td { background: rgba(244,114,182,0.04); }
+  .ftable tr:last-child td { border-bottom: none; }
+  .year-num { font-family: 'Cinzel', serif; font-size: 13px; color: var(--gold-light); font-weight: 600; }
+  .star-row { font-size: 11px; }
+
+  /* ── REMEDY ITEMS ── */
+  .remedy { padding: 10px 14px; border-left: 2px solid var(--gold-dim); background: rgba(201,168,76,0.04); border-radius: 0 6px 6px 0; margin-bottom: 8px; }
+  .remedy-title { font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold); margin-bottom: 4px; letter-spacing: 0.05em; }
+  .remedy-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── RASHI CHART ── */
+  .rashi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; aspect-ratio: 1; }
+  .rashi-cell {
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 5px;
+    background: var(--deep3);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    min-height: 68px;
+  }
+  .rashi-cell.center-top, .rashi-cell.center-bot { background: var(--deep2); }
+  .rashi-cell.lagna { border-color: var(--gold); border-width: 1.5px; background: rgba(201,168,76,0.08); }
+  .r-num { font-family: 'Inter', sans-serif; font-size: 8px; color: var(--text-dim); }
+  .r-sign { font-family: 'Cinzel', serif; font-size: 9px; color: var(--text-muted); }
+  .r-pl { font-size: 9px; color: var(--gold); font-weight: 500; font-family: 'Inter', sans-serif; }
+
+  /* ── STRENGTH METER ── */
+  .smeter { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .smeter-label { font-size: 11px; color: var(--text-muted); width: 90px; flex-shrink: 0; }
+  .smeter-bar-bg { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+  .smeter-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold-dim), var(--gold)); }
+  .smeter-val { font-size: 10px; color: var(--gold); width: 24px; text-align: right; font-family: 'Inter', sans-serif; }
+
+  /* ── SECTION SPACING ── */
+  .section { margin-bottom: 28px; }
+
+  /* ── CONCERN CHIPS ── */
+  .concern { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(139,92,246,0.08); border: 0.5px solid rgba(139,92,246,0.25); border-radius: 8px; font-size: 12px; color: var(--text); }
+  .concern-icon { font-size: 14px; color: var(--purple); }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+  /* ── ORNAMENT ── */
+  .orn { text-align: center; color: var(--gold-dim); font-size: 18px; margin: 4px 0 20px; letter-spacing: 8px; }
+
+  .inline-head { font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold-light); margin-bottom: 8px; }
+</style>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <svg class="hero-mandala" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="200" r="190" stroke="#C9A84C" stroke-width="0.5"/>
+      <circle cx="200" cy="200" r="160" stroke="#C9A84C" stroke-width="0.5"/>
+      <circle cx="200" cy="200" r="130" stroke="#C9A84C" stroke-width="0.5"/>
+      <circle cx="200" cy="200" r="100" stroke="#C9A84C" stroke-width="0.5"/>
+      <circle cx="200" cy="200" r="70" stroke="#C9A84C" stroke-width="0.5"/>
+      <circle cx="200" cy="200" r="40" stroke="#C9A84C" stroke-width="1"/>
+      <line x1="200" y1="10" x2="200" y2="390" stroke="#C9A84C" stroke-width="0.5"/>
+      <line x1="10" y1="200" x2="390" y2="200" stroke="#C9A84C" stroke-width="0.5"/>
+      <line x1="65" y1="65" x2="335" y2="335" stroke="#C9A84C" stroke-width="0.5"/>
+      <line x1="335" y1="65" x2="65" y2="335" stroke="#C9A84C" stroke-width="0.5"/>
+      <polygon points="200,40 360,290 40,290" stroke="#C9A84C" stroke-width="0.5" fill="none"/>
+      <polygon points="200,360 360,110 40,110" stroke="#C9A84C" stroke-width="0.5" fill="none"/>
+      <polygon points="200,80 310,260 90,260" stroke="#C9A84C" stroke-width="0.3" fill="none"/>
+      <polygon points="200,320 310,140 90,140" stroke="#C9A84C" stroke-width="0.3" fill="none"/>
+      <circle cx="200" cy="200" r="8" fill="#C9A84C" opacity="0.5"/>
+      <circle cx="200" cy="40" r="3" fill="#C9A84C"/>
+      <circle cx="200" cy="360" r="3" fill="#C9A84C"/>
+      <circle cx="40" cy="200" r="3" fill="#C9A84C"/>
+      <circle cx="360" cy="200" r="3" fill="#C9A84C"/>
+    </svg>
+
+    <div class="hero-eyebrow">✦ Vedic Jyotish Chart ✦</div>
+    <div class="hero-name">Saanvi Shreshth</div>
+    <div class="hero-sub">Born under Shravana Nakshatra · 3rd Pada · Moon's Wisdom</div>
+    <div class="hero-tags">
+      <span class="tag">30 Oct 2006 · 2:53 PM IST</span>
+      <span class="tag">Ranchi, Jharkhand</span>
+      <span class="tag">Aquarius Lagna</span>
+      <span class="tag">Capricorn Moon</span>
+      <span class="tag">Mercury Mahadasha</span>
+    </div>
+    <div class="divider">
+      <div class="divider-line"></div>
+      <div class="divider-star">✦</div>
+      <div class="divider-line r"></div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Core Positions + Rashi Chart -->
+  <div class="gwide section">
+    <div>
+      <div class="sec-title">Birth Chart · Core Positions</div>
+      <div class="g4" style="margin-bottom:12px;">
+        <div class="card card-accent">
+          <div class="kv-label">Lagna</div>
+          <div class="kv-val">Aquarius</div>
+          <div class="kv-sub">Kumbha · ♄ Saturn</div>
+        </div>
+        <div class="card">
+          <div class="kv-label">Moon Sign</div>
+          <div class="kv-val">Capricorn</div>
+          <div class="kv-sub">Makara · ♄ Saturn</div>
+        </div>
+        <div class="card">
+          <div class="kv-label">Sun Sign</div>
+          <div class="kv-val">Libra</div>
+          <div class="kv-sub">Tula · ♀ Venus</div>
+        </div>
+        <div class="card">
+          <div class="kv-label">Nakshatra</div>
+          <div class="kv-val">Shravana</div>
+          <div class="kv-sub">3rd Pada · Gemini NS</div>
+        </div>
+      </div>
+
+      <!-- Planet Table -->
+      <div class="card">
+        <table class="ptable">
+          <thead>
+            <tr>
+              <th>Planet</th>
+              <th>Sign · House</th>
+              <th>Dignity</th>
+              <th>Nature</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="pname"><span class="glyph">☀</span> Sun</span></td><td>Libra · 9H</td><td>Debilitated</td><td><span class="badge b-y">Mixed</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">☽</span> Moon</span></td><td>Capricorn · 12H</td><td>Neutral</td><td><span class="badge b-y">Malefic</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">♂</span> Mars</span></td><td>Libra · 9H</td><td>Neutral</td><td><span class="badge b-y">Mixed</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">☿</span> Mercury</span></td><td>Scorpio · 10H</td><td>Friendly</td><td><span class="badge b-g">Benefic ★</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">♃</span> Jupiter</span></td><td>Libra · 9H</td><td>Neutral</td><td><span class="badge b-y">Mild Ben.</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">♀</span> Venus</span></td><td>Scorpio · 10H</td><td>Friendly</td><td><span class="badge b-g">Benefic</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">♄</span> Saturn</span></td><td>Leo · 7H</td><td>Debilitated</td><td><span class="badge b-r">Complex</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">☊</span> Rahu</span></td><td>Gemini · 5H</td><td>—</td><td><span class="badge b-g">Amplifier</span></td></tr>
+            <tr><td><span class="pname"><span class="glyph">☋</span> Ketu</span></td><td>Sagittarius · 11H</td><td>—</td><td><span class="badge b-g">Gain</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rashi Chart + Benefics -->
+    <div class="gcol">
+      <div>
+        <div class="sec-title">Rashi Chart</div>
+        <div class="card" style="padding:10px;">
+          <div class="rashi-grid">
+            <div class="rashi-cell"><div class="r-num">12 · Pis</div><div class="r-pl">Ketu</div></div>
+            <div class="rashi-cell center-top"><div class="r-num">1 · Ari</div><div class="r-pl">—</div></div>
+            <div class="rashi-cell center-top"><div class="r-num">2 · Tau</div><div class="r-pl">—</div></div>
+            <div class="rashi-cell"><div class="r-num">3 · Gem</div><div class="r-pl">Rahu</div></div>
+            <div class="rashi-cell"><div class="r-num">11 · Aqu</div><div class="r-pl">—</div></div>
+            <div class="rashi-cell center-top" style="display:flex;align-items:center;justify-content:center;grid-column:span 2;grid-row:span 2;background:rgba(201,168,76,0.06);border-color:var(--border-bright);border-radius:6px;min-height:auto;">
+              <div style="text-align:center;">
+                <div style="font-size:24px;color:var(--gold);margin-bottom:4px;">♒</div>
+                <div style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold-light);">Aquarius Lagna</div>
+              </div>
+            </div>
+            <div class="rashi-cell"><div class="r-num">4 · Can</div><div class="r-pl">—</div></div>
+            <div class="rashi-cell lagna"><div class="r-num">Asc · Aqu</div><div class="r-pl" style="color:var(--gold);">Lagna ✦</div></div>
+            <div class="rashi-cell"><div class="r-num">5 · Leo</div><div class="r-pl">—</div></div>
+            <div class="rashi-cell"><div class="r-num">10 · Sco</div><div class="r-pl">☀ ☿ ♀</div></div>
+            <div class="rashi-cell"><div class="r-num">9 · Lib</div><div class="r-pl">♂ ♃</div></div>
+            <div class="rashi-cell"><div class="r-num">8 · Vir</div><div class="r-pl">—</div></div>
+            <div class="rashi-cell"><div class="r-num">7 · Leo</div><div class="r-pl">♄ ☽</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="kv-label" style="margin-bottom:8px;">Functional Nature</div>
+        <div style="margin-bottom:8px;">
+          <div style="font-size:10px;color:var(--teal);margin-bottom:4px;font-family:'Inter',sans-serif;letter-spacing:0.08em;text-transform:uppercase;">Benefics</div>
+          <div style="font-size:12px;color:var(--text-muted);">Venus, Saturn, Mercury, Rahu</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--rose);margin-bottom:4px;font-family:'Inter',sans-serif;letter-spacing:0.08em;text-transform:uppercase;">Malefics</div>
+          <div style="font-size:12px;color:var(--text-muted);">Moon (6L), Sun (7L), Jupiter (mild), Mars</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Yogas + Personality -->
+  <div class="g2 section">
+    <div>
+      <div class="sec-title">Major Yogas & Doshas</div>
+      <div class="card" style="height:100%;">
+        <div class="yoga-item">
+          <div class="yoga-name">✦ Budha-Aditya Yoga <span class="badge b-g" style="margin-left:6px;">10th House</span></div>
+          <div class="yoga-desc">Sun + Mercury together in 10th create sharp intelligence and career recognition. Sun's debilitation moderates strength but Mercury dominates — strong analytical brilliance for CS.</div>
+        </div>
+        <div class="yoga-item">
+          <div class="yoga-name">✦ Dharma-Karma Adhipati <span class="badge b-p" style="margin-left:6px;">9th House</span></div>
+          <div class="yoga-desc">Mars + Jupiter in 9th connects ethics, higher learning, and career. Supports foreign education, research roles, and ethical career path.</div>
+        </div>
+        <div class="yoga-item">
+          <div class="yoga-name">✦ Rahu in 5th (Gemini) <span class="badge b-p" style="margin-left:6px;">Intellect</span></div>
+          <div class="yoga-desc">Amplifies technology aptitude, unconventional thinking, coding genius. Primary indicator of CS success and innovative problem-solving.</div>
+        </div>
+        <div class="yoga-item">
+          <div class="yoga-name">✦ Ketu in 11th <span class="badge b-g" style="margin-left:6px;">Gains</span></div>
+          <div class="yoga-desc">Unexpected financial windfalls, strong professional network. Detached approach to material gains — works in her favor over time.</div>
+        </div>
+        <div class="yoga-item">
+          <div class="yoga-name">✦ Shasha Yoga (weak) <span class="badge b-y" style="margin-left:6px;">Delayed</span></div>
+          <div class="yoga-desc">Saturn as Lagna lord. Career stabilizes after age 24-25. Delayed but deeply durable success — what she builds lasts.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-title">Life Pattern Analysis</div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="inline-head">Core Personality</div>
+        <div class="prose">Saturn-double native — disciplined, introspective, serious beyond her years. <strong>Shravana's gift</strong> is deep absorption: she learns by listening and processing, not by quick trial-and-error. Fiercely loyal once trust is earned.</div>
+      </div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="inline-head">Karmic Patterns</div>
+        <div class="prose" style="margin-bottom:8px;">→ Overwork while neglecting emotional needs (Moon 12th)</div>
+        <div class="prose" style="margin-bottom:8px;">→ Intellectual self-doubt despite obvious capability (Sun debilitated)</div>
+        <div class="prose" style="margin-bottom:8px;">→ Prefers struggling silently before seeking help</div>
+        <div class="prose">→ Collaboration is a skill to consciously develop</div>
+      </div>
+      <div class="card">
+        <div class="inline-head">Planet Strengths</div>
+        <div class="smeter"><span class="smeter-label">Mercury</span><div class="smeter-bar-bg"><div class="smeter-bar-fill" style="width:92%"></div></div><span class="smeter-val">92</span></div>
+        <div class="smeter"><span class="smeter-label">Venus</span><div class="smeter-bar-bg"><div class="smeter-bar-fill" style="width:72%"></div></div><span class="smeter-val">72</span></div>
+        <div class="smeter"><span class="smeter-label">Rahu</span><div class="smeter-bar-bg"><div class="smeter-bar-fill" style="width:78%"></div></div><span class="smeter-val">78</span></div>
+        <div class="smeter"><span class="smeter-label">Jupiter</span><div class="smeter-bar-bg"><div class="smeter-bar-fill" style="width:55%"></div></div><span class="smeter-val">55</span></div>
+        <div class="smeter"><span class="smeter-label">Saturn</span><div class="smeter-bar-bg"><div class="smeter-bar-fill" style="width:40%"></div></div><span class="smeter-val">40</span></div>
+        <div class="smeter"><span class="smeter-label">Sun</span><div class="smeter-bar-bg"><div class="smeter-bar-fill" style="width:32%"></div></div><span class="smeter-val">32</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: Career + Dasha -->
+  <div class="gwide section">
+    <div>
+      <div class="sec-title">Career, Wealth & Foreign Prospects</div>
+      <div class="card" style="margin-bottom:12px;">
+        <div class="inline-head">Career Suitability (CS Fields)</div>
+        <table class="ptable">
+          <thead><tr><th>Field</th><th>Fit</th><th>Basis</th></tr></thead>
+          <tbody>
+            <tr><td>AI / Machine Learning</td><td><span style="color:var(--gold);">★★★★★</span></td><td>Mercury·Scorpio + Rahu 5H</td></tr>
+            <tr><td>Cybersecurity</td><td><span style="color:var(--gold);">★★★★★</span></td><td>Scorpio = hidden systems; Mars</td></tr>
+            <tr><td>Data Science</td><td><span style="color:var(--gold);">★★★★</span></td><td>Mercury depth, 10H stellium</td></tr>
+            <tr><td>Software Engineering</td><td><span style="color:var(--gold);">★★★★</span></td><td>Mercury in 10H</td></tr>
+            <tr><td>Research (Academic)</td><td><span style="color:var(--gold);">★★★★</span></td><td>Jupiter 9H + Rahu 5H</td></tr>
+            <tr><td>Product Management</td><td><span style="color:var(--gold);">★★★</span></td><td>Venus 10H — after experience</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="g3">
+        <div class="card">
+          <div class="kv-label">Job vs Business</div>
+          <div class="kv-val" style="font-size:13px;">Job First</div>
+          <div class="kv-sub">Business viable after 28-30 (Saturn Mahadasha later)</div>
+        </div>
+        <div class="card">
+          <div class="kv-label">Foreign Prospects</div>
+          <div class="kv-val" style="font-size:13px;">Very Strong</div>
+          <div class="kv-sub">Venus 9L in 10H + Moon 12H; best 2027-30</div>
+        </div>
+        <div class="card">
+          <div class="kv-label">Govt Job</div>
+          <div class="kv-val" style="font-size:13px;">Moderate</div>
+          <div class="kv-sub">Mars-Jupiter 9H; private/tech more fulfilling</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="inline-head">Wealth & Career Timeline</div>
+        <table class="ptable">
+          <thead><tr><th>Age</th><th>Phase</th><th>Driver</th></tr></thead>
+          <tbody>
+            <tr><td>18–22</td><td>Skill investment</td><td>Education spend; lay foundations</td></tr>
+            <tr><td>22–26</td><td>First earnings</td><td>Mercury–Venus dasha begins</td></tr>
+            <tr><td>26–30</td><td>Income growth ↑</td><td>Career breakthrough period</td></tr>
+            <tr><td>30–35</td><td>Wealth accumulation</td><td>Mercury–Mars / Rahu dasha</td></tr>
+            <tr><td>35+</td><td>Compounding phase</td><td>Saturn matures; deep rewards</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dasha -->
+    <div class="gcol">
+      <div>
+        <div class="sec-title">Vimshottari Dasha</div>
+        <div class="card">
+          <div style="background:rgba(201,168,76,0.08);border:0.5px solid var(--border-bright);border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+            <div style="font-family:'Inter',sans-serif;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Active Mahadasha</div>
+            <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold-light);font-weight:700;">Mercury</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">2024 – 2041 · 17 years · ☿ in 10H Scorpio</div>
+            <div style="margin-top:8px;font-size:11px;color:var(--teal);">Optimal Mahadasha for a CS student — covers entire early career through age 35</div>
+          </div>
+          <div class="dasha-item">
+            <div class="dasha-dot active"></div>
+            <div><div class="dasha-name">Mercury–Mercury <span class="badge b-g" style="margin-left:4px;">NOW</span></div><div class="dasha-period">2024 – Mid 2026</div><div class="dasha-note">Peak intellectual focus; seed your skills now</div></div>
+          </div>
+          <div class="dasha-item">
+            <div class="dasha-dot"></div>
+            <div><div class="dasha-name">Mercury–Ketu</div><div class="dasha-period">Mid 2026 – Mid 2027</div><div class="dasha-note">Unexpected technical opportunity; transition phase</div></div>
+          </div>
+          <div class="dasha-item">
+            <div class="dasha-dot"></div>
+            <div><div class="dasha-name">Mercury–Venus ✦ <span class="badge b-gold" style="margin-left:4px;">Best</span></div><div class="dasha-period">2027 – 2030</div><div class="dasha-note">Career turns golden; foreign opportunity; romance opens</div></div>
+          </div>
+          <div class="dasha-item">
+            <div class="dasha-dot"></div>
+            <div><div class="dasha-name">Mercury–Sun</div><div class="dasha-period">2030 – 2031</div><div class="dasha-note">Authority conflicts; identity challenge; burnout risk</div></div>
+          </div>
+          <div class="dasha-item">
+            <div class="dasha-dot"></div>
+            <div><div class="dasha-name">Mercury–Moon</div><div class="dasha-period">2031 – 2032</div><div class="dasha-note">Emotional intensity; health vigilance needed</div></div>
+          </div>
+          <div class="dasha-item" style="border:none;">
+            <div class="dasha-dot"></div>
+            <div><div class="dasha-name">Mercury–Mars</div><div class="dasha-period">2032 – 2033</div><div class="dasha-note">Action, ambition; major wealth building begins</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marriage -->
+      <div>
+        <div class="sec-title">Marriage & Relationships</div>
+        <div class="card">
+          <div class="yoga-item">
+            <div class="yoga-name">Saturn (7L) debilitated in 7H</div>
+            <div class="yoga-desc">Delays marriage — most realistic window is 27-30. Relationship once formed is durable. Partner likely intellectual, career-focused, possibly from different city.</div>
+          </div>
+          <div class="yoga-item" style="border:none;padding-bottom:0;">
+            <table class="ptable">
+              <tr><td style="color:var(--text-dim);font-size:11px;padding:4px 0;">Marriage Type</td><td style="font-size:11px;padding:4px 0;">Love-arranged blend</td></tr>
+              <tr><td style="color:var(--text-dim);font-size:11px;padding:4px 0;">Earliest Window</td><td style="font-size:11px;padding:4px 0;">26-27 (not advised to rush)</td></tr>
+              <tr><td style="color:var(--text-dim);font-size:11px;padding:4px 0;">Best Window</td><td style="font-size:11px;padding:4px 0;">28-30 (Mercury–Rahu)</td></tr>
+              <tr><td style="color:var(--text-dim);font-size:11px;padding:4px 0;">Met through</td><td style="font-size:11px;padding:4px 0;">Professional / academic circles</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 4: 5-Year Forecast -->
+  <div class="section">
+    <div class="sec-title">5-Year Forecast · 2025 – 2030</div>
+    <div class="card">
+      <table class="ftable">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Age</th>
+            <th>Dasha</th>
+            <th>Career</th>
+            <th>Money</th>
+            <th>Relationships</th>
+            <th>Health</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="year-num">2025</span></td>
+            <td style="font-size:11px;">18-19</td>
+            <td><span class="badge b-gold">Mer–Mer</span></td>
+            <td>Strong academic year; internship search; rapid coding skill growth</td>
+            <td>Education expenses; first stipend possible</td>
+            <td>Introspective phase; not priority year for romance</td>
+            <td>Eye strain, poor sleep from screens; discipline rest</td>
+          </tr>
+          <tr class="best">
+            <td><span class="year-num">2026</span> <span class="badge b-g" style="margin-left:4px;">Best Early</span></td>
+            <td style="font-size:11px;">19-20</td>
+            <td><span class="badge b-g">Mer–Ketu</span></td>
+            <td>Unexpected technical opportunity; first significant internship; Ketu triggers surprise opening</td>
+            <td>First real income; Ketu brings windfall potential</td>
+            <td>Meaningful connection possible; not yet serious</td>
+            <td>Good if rest is prioritized; Ketu brings intuitive clarity</td>
+          </tr>
+          <tr class="best">
+            <td><span class="year-num">2027</span> <span class="badge b-gold" style="margin-left:4px;">★ Peak</span></td>
+            <td style="font-size:11px;">20-21</td>
+            <td><span class="badge b-gold">Mer–Ven</span></td>
+            <td>Career turns golden; placement/job offers; possible foreign or remote role; recognition</td>
+            <td>Income begins; first real savings; invest in SIP</td>
+            <td>Venus dasha opens social & romantic life warmly</td>
+            <td>Best health year; energy high</td>
+          </tr>
+          <tr class="best">
+            <td><span class="year-num">2028</span> <span class="badge b-g" style="margin-left:4px;">★★ Best</span></td>
+            <td style="font-size:11px;">21-22</td>
+            <td><span class="badge b-gold">Mer–Ven</span></td>
+            <td>First major breakthrough; abroad posting possible; leadership visibility</td>
+            <td>Salary jump; strong savings begin; early investment</td>
+            <td>Relationship deepens; romantic potential very high</td>
+            <td>Strong overall; avoid overwork hubris</td>
+          </tr>
+          <tr>
+            <td><span class="year-num">2029</span></td>
+            <td style="font-size:11px;">22-23</td>
+            <td><span class="badge b-gold">Mer–Ven</span></td>
+            <td>High performance continues; leadership roles appear; mentor figures emerge</td>
+            <td>Growing wealth; diversify investments</td>
+            <td>Relationship decisions arise; long-term commitment signals</td>
+            <td>Minor stress issues; exercise essential</td>
+          </tr>
+          <tr class="hard">
+            <td><span class="year-num">2030</span> <span class="badge b-r" style="margin-left:4px;">Tough</span></td>
+            <td style="font-size:11px;">23-24</td>
+            <td><span class="badge b-r">Mer–Sun</span></td>
+            <td>Authority conflicts; ego clashes; competition intensifies; identity confusion</td>
+            <td>Income stable; avoid impulsive investments; Sun debilitation brings poor judgment</td>
+            <td>Relationship pressure; communication gaps with partner</td>
+            <td>Burnout, blood pressure risk; mandatory rest protocols</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROW 5: Remedies + Concerns -->
+  <div class="g2 section">
+    <div>
+      <div class="sec-title">Remedies · Astrologically Justified</div>
+      <div class="card">
+        <div class="remedy">
+          <div class="remedy-title">☀ Sun — Confidence & Authority</div>
+          <div class="remedy-text"><strong>Mantra:</strong> "Om Hraam Hreem Hraum Sah Suryaya Namah" · 108× Sundays at sunrise<br><strong>Donate:</strong> Wheat, jaggery, or red cloth to underprivileged on Sundays<br><strong>Practice:</strong> Surya Namaskar at sunrise daily</div>
+        </div>
+        <div class="remedy">
+          <div class="remedy-title">♄ Saturn — Relationships & Self-Worth</div>
+          <div class="remedy-text"><strong>Mantra:</strong> "Om Sham Shanaishcharaya Namah" · 108× Saturdays<br><strong>Donate:</strong> Sesame seeds, iron items, or black cloth to elderly on Saturdays<br><strong>Practice:</strong> Hanuman Chalisa on Saturdays and Tuesdays</div>
+        </div>
+        <div class="remedy">
+          <div class="remedy-title">☽ Moon — Emotional Stability & Sleep</div>
+          <div class="remedy-text"><strong>Mantra:</strong> "Om Som Somaya Namah" · 108× Mondays<br><strong>Practice:</strong> 10 min silent meditation + journaling before sleep<br><strong>Diet:</strong> Warm milk with saffron at night; reduce cold/processed foods</div>
+        </div>
+        <div class="remedy">
+          <div class="remedy-title">☊ Rahu — Channel Intellect Constructively</div>
+          <div class="remedy-text"><strong>Practice:</strong> Regular physical exercise — Rahu in 5H without grounding creates mental restlessness<br><strong>Donate:</strong> Feed birds (crows) on Saturdays</div>
+        </div>
+        <div class="remedy" style="border-color:var(--teal);background:rgba(45,212,191,0.05);">
+          <div class="remedy-title" style="color:var(--teal);">♀ Gemstone — Emerald (Panna)</div>
+          <div class="remedy-text">Mercury is strong in 10H — Emerald (min 4-5 ratti) in silver/gold on little finger, Wednesday morning. <strong>NOT recommended:</strong> Blue Sapphire (Saturn debilitated) or Pearl (Moon = 6L malefic). Consult trained astrologer before wearing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gcol">
+      <div>
+        <div class="sec-title">Current Concerns Addressed</div>
+        <div class="card">
+          <div class="concern" style="margin-bottom:8px;">
+            <span class="concern-icon">💻</span>
+            <div>
+              <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold-light);margin-bottom:3px;">Career Growth</div>
+              <div style="font-size:11px;color:var(--text-muted);">Mercury Mahadasha runs to 2041 — your entire early career is blessed. AI, cybersecurity, and data science are your highest-potential domains. Career breakthrough at 22-23 (2028-29).</div>
+            </div>
+          </div>
+          <div class="concern" style="margin-bottom:8px;">
+            <span class="concern-icon">🔍</span>
+            <div>
+              <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold-light);margin-bottom:3px;">Internship Opportunities</div>
+              <div style="font-size:11px;color:var(--text-muted);">2026 (Mercury–Ketu) is your prime internship year. An unexpected opening will appear — likely in a tech/research role through digital networking. Apply early; Ketu rewards the prepared.</div>
+            </div>
+          </div>
+          <div class="concern">
+            <span class="concern-icon">📚</span>
+            <div>
+              <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold-light);margin-bottom:3px;">Skill Development</div>
+              <div style="font-size:11px;color:var(--text-muted);">Now (Mercury–Mercury) is your single highest absorption window. Go deep, not broad. Rahu in 5H rewards unconventional technical stacks. Build a portfolio; quality beats quantity.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec-title">Key Strengths vs Blind Spots</div>
+        <div class="card">
+          <div style="margin-bottom:10px;">
+            <div style="font-size:10px;color:var(--teal);font-family:'Inter',sans-serif;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Strengths</div>
+            <div class="prose" style="margin-bottom:4px;">→ Deep technical focus & pattern recognition</div>
+            <div class="prose" style="margin-bottom:4px;">→ Long-term project commitment</div>
+            <div class="prose">→ Research instinct and systematic problem-solving</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--rose);font-family:'Inter',sans-serif;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Blind Spots</div>
+            <div class="prose" style="margin-bottom:4px;">→ Undervalues soft skills & self-promotion</div>
+            <div class="prose" style="margin-bottom:4px;">→ Overthinking leads to paralysis</div>
+            <div class="prose">→ Neglects networking while in deep focus</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec-title">Closing Note</div>
+        <div class="card card-accent">
+          <div class="prose"><strong>Saanvi's chart is a chart of delayed but deep reward.</strong> Saturn's double influence demands patience and structured effort — the payoff is exceptional. The next 3 years are the most important not because events happen, but because foundations are laid that determine the next three decades. Every skill built now compounds.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="orn">✦ ◈ ✦ ◈ ✦</div>
+  <div style="text-align:center;font-size:10px;color:var(--text-dim);font-family:'Inter',sans-serif;letter-spacing:0.08em;">
+    Prepared under Vedic Jyotish tradition · Parashara, Jaimini & Nakshatra systems · Birth time approximate — verify with rectification
+  </div>
+
+</div>
