@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Pattern Explorer</title>
+<style>
+  :root{
+    --bg-1:#0f1720;
+    --bg-2:#182635;
+    --ink:#eef2f4;
+    --ink-dim:#a9b7c2;
+    --sage:#7fa693;
+    --sage-soft:#3c5348;
+    --clay:#c8926a;
+    --violet:#8d84c9;
+    --card-bg:#1b2b3a;
+    --card-bg-hover:#22384a;
+    --line:#2c3f4f;
+    --focus:#e7c9a3;
+    --radius:16px;
+    --dur:0.5s;
+    --ease:cubic-bezier(.22,.9,.28,1);
+  }
+  [data-mode="stress"]{
+    --bg-1:#12161f;
+    --bg-2:#1b1f2a;
+    --sage:#6f8c9e;
+    --sage-soft:#33424b;
+    --clay:#b98263;
+    --violet:#7d78ad;
+    --card-bg:#1a1f2b;
+    --card-bg-hover:#212836;
+    --dur:0.3s;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Iowan Old Style','Georgia',ui-serif,serif;
+    background:linear-gradient(160deg,var(--bg-1),var(--bg-2));
+    color:var(--ink);
+    overflow-x:hidden;
+    transition:background var(--dur) var(--ease);
+  }
+  .sans{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;}
+
+  /* ambient background */
+  .ambient{
+    position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  }
+  .orb{
+    position:absolute;border-radius:50%;
+    filter:blur(60px);opacity:0.35;
+    animation:drift 22s ease-in-out infinite;
+  }
+  .orb.o1{width:420px;height:420px;background:var(--sage-soft);top:-120px;left:-100px;animation-duration:26s;}
+  .orb.o2{width:340px;height:340px;background:var(--violet);bottom:-100px;right:-80px;animation-duration:30s;animation-delay:-6s;}
+  .orb.o3{width:260px;height:260px;background:var(--clay);top:40%;left:60%;animation-duration:20s;animation-delay:-12s;}
+  @keyframes drift{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(40px,-30px) scale(1.08);}
+  }
+
+  .app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+
+  /* progress bar */
+  .progress-wrap{
+    position:sticky;top:0;z-index:5;
+    padding:14px 20px 10px;
+    background:linear-gradient(to bottom, rgba(15,23,32,0.85), transparent);
+    backdrop-filter:blur(6px);
+  }
+  .progress-track{
+    max-width:720px;margin:0 auto;
+    height:6px;border-radius:6px;background:rgba(255,255,255,0.08);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;border-radius:6px;
+    background:linear-gradient(90deg,var(--sage),var(--violet));
+    width:0%;
+    transition:width 0.6s var(--ease);
+  }
+  .progress-steps{
+    max-width:720px;margin:8px auto 0;
+    display:flex;justify-content:space-between;
+    font-size:0.72rem;letter-spacing:0.04em;
+    color:var(--ink-dim);
+  }
+  .progress-steps span.active{color:var(--ink);font-weight:600;}
+
+  main{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 16px 60px;}
+  .screen{
+    width:100%;max-width:760px;
+    animation:riseIn var(--dur) var(--ease);
+  }
+  @keyframes riseIn{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  h1{font-size:clamp(1.9rem,5vw,2.7rem);margin:0 0 6px;font-weight:600;line-height:1.15;}
+  h2{font-size:clamp(1.4rem,4vw,1.9rem);margin:0 0 8px;font-weight:600;}
+  p.lede{font-family:inherit;color:var(--ink-dim);font-size:1.05rem;line-height:1.6;margin:0 0 26px;}
+  .eyebrow{
+    font-family:inherit;
+    text-transform:uppercase;letter-spacing:0.16em;font-size:0.76rem;
+    color:var(--sage);margin:0 0 10px;font-style:normal;
+  }
+
+  /* buttons */
+  .btn{
+    font-family:inherit;font-size:1rem;
+    padding:13px 26px;border-radius:30px;
+    border:1px solid var(--line);
+    background:var(--card-bg);color:var(--ink);
+    cursor:pointer;transition:all 0.25s var(--ease);
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:hover{background:var(--card-bg-hover);transform:translateY(-1px);}
+  .btn:focus-visible{outline:2px solid var(--focus);outline-offset:3px;}
+  .btn.primary{
+    background:linear-gradient(135deg,var(--sage),var(--sage-soft));
+    border:none;color:#0c1712;font-weight:600;
+  }
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn.ghost{background:transparent;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .row.between{justify-content:space-between;}
+  .row.end{justify-content:flex-end;}
+
+  /* Start screen */
+  .mode-toggle{
+    display:flex;gap:10px;margin:18px 0 30px;flex-wrap:wrap;
+  }
+  .mode-btn{
+    flex:1;min-width:140px;
+    padding:16px;border-radius:var(--radius);
+    border:1px solid var(--line);background:var(--card-bg);
+    cursor:pointer;text-align:left;transition:all 0.25s var(--ease);
+    font-family:inherit;color:var(--ink);
+  }
+  .mode-btn strong{display:block;font-size:1.05rem;margin-bottom:4px;}
+  .mode-btn span{font-family:-apple-system,sans-serif;font-size:0.85rem;color:var(--ink-dim);}
+  .mode-btn.selected{border-color:var(--sage);background:var(--card-bg-hover);box-shadow:0 0 0 1px var(--sage);}
+  .mode-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+
+  /* Scenario / question cards */
+  .scenario-card{
+    background:var(--card-bg);border:1px solid var(--line);
+    border-radius:var(--radius);padding:26px;margin-bottom:20px;
+  }
+  .options{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
+  .option{
+    text-align:left;padding:16px 18px;border-radius:12px;
+    border:1px solid var(--line);background:rgba(255,255,255,0.02);
+    cursor:pointer;font-family:inherit;color:var(--ink);font-size:1rem;
+    transition:all 0.2s var(--ease);
+  }
+  .option:hover{background:var(--card-bg-hover);border-color:var(--sage);}
+  .option:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  .option.chosen{border-color:var(--sage);background:var(--sage-soft);}
+
+  /* Draggable priority cards (Chapter 2) */
+  .drag-instructions{font-family:-apple-system,sans-serif;font-size:0.85rem;color:var(--ink-dim);margin-bottom:14px;}
+  .drop-zones{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+  .drop-zone{
+    min-height:120px;border-radius:14px;
+    border:2px dashed var(--line);
+    padding:12px;display:flex;flex-direction:column;gap:8px;
+    transition:all 0.2s var(--ease);
+  }
+  .drop-zone.dragover{border-color:var(--sage);background:rgba(127,166,147,0.08);}
+  .drop-zone-label{font-family:-apple-system,sans-serif;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-dim);}
+  .card-pool{
+    display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;
+    min-height:56px;padding:10px;border-radius:14px;
+    border:2px dashed transparent;
+  }
+  .card-pool.dragover{border-color:var(--violet);background:rgba(141,132,201,0.08);}
+  .drag-card{
+    padding:12px 16px;border-radius:12px;background:var(--card-bg-hover);
+    border:1px solid var(--line);cursor:grab;user-select:none;
+    font-family:-apple-system,sans-serif;font-size:0.92rem;
+    transition:transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+    touch-action:none;
+  }
+  .drag-card:active{cursor:grabbing;}
+  .drag-card.dragging{opacity:0.5;transform:scale(0.97);}
+  .drag-card:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  .drag-card.touch-lifted{
+    box-shadow:0 12px 28px rgba(0,0,0,0.4);transform:scale(1.04);z-index:20;position:relative;
+  }
+
+  /* Chapter 3 timeline */
+  .timeline{
+    display:flex;flex-direction:column;gap:10px;margin-bottom:18px;
+  }
+  .timeline-slot{
+    display:flex;align-items:center;gap:14px;
+    padding:10px;border-radius:12px;border:2px dashed var(--line);
+    min-height:58px;transition:all 0.2s var(--ease);
+  }
+  .timeline-slot.dragover{border-color:var(--sage);background:rgba(127,166,147,0.08);}
+  .timeline-slot .step-num{
+    width:28px;height:28px;border-radius:50%;background:var(--sage-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-family:-apple-system,sans-serif;font-size:0.85rem;font-weight:700;flex-shrink:0;
+  }
+  .timeline-slot .slot-content{flex:1;}
+
+  /* Journal / results */
+  .insight-block{
+    background:var(--card-bg);border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px;margin-bottom:18px;
+  }
+  .bar-row{margin-bottom:14px;}
+  .bar-label{
+    display:flex;justify-content:space-between;
+    font-family:-apple-system,sans-serif;font-size:0.9rem;margin-bottom:6px;
+  }
+  .bar-track{height:10px;border-radius:8px;background:rgba(255,255,255,0.06);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--sage),var(--violet));width:0%;transition:width 1s var(--ease);}
+
+  .tag{
+    display:inline-block;padding:5px 14px;border-radius:20px;
+    background:var(--sage-soft);color:var(--ink);
+    font-family:-apple-system,sans-serif;font-size:0.82rem;font-weight:600;
+    margin-bottom:10px;
+  }
+
+  footer.nav-footer{
+    display:flex;justify-content:space-between;margin-top:22px;
+  }
+
+  .visually-hidden{
+    position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;
+  }
+
+  @media (max-width:560px){
+    .drop-zones{grid-template-columns:1fr;}
+    .mode-toggle{flex-direction:column;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;}
+    .orb{animation:none;}
+  }
+</style>
+</head>
+<body data-mode="calm">
+<div class="ambient" aria-hidden="true">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+
+<div class="app">
+  <div class="progress-wrap" id="progressWrap" style="display:none;">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-steps sans" id="progressSteps"></div>
+  </div>
+
+  <main id="main" role="main" aria-live="polite"></main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------
+     DATA
+  --------------------------------------------------- */
+  const TENDENCIES = {
+    analytical:   { name:"Analytical Thinker", desc:"You often slow down to break problems into parts before acting. This suggests you find clarity through structure and evidence, weighing options carefully rather than trusting a first impression." },
+    emotional:    { name:"Emotional Intuitive", desc:"You often lead with how something feels before you explain why. This suggests your instincts carry real information for you, and you tend to trust the emotional read of a room or a moment." },
+    overthinking: { name:"Overthinking Loop Style", desc:"You often revisit a decision from several angles, even after you've made it. This suggests a strong drive to get things right, though it may sometimes turn small choices into longer loops than they need to be." },
+    action:       { name:"Action-First Decision Maker", desc:"You often move as soon as a decision feels 'good enough.' This suggests you value momentum and learning by doing, preferring to adjust course along the way rather than plan every step first." },
+    balanced:     { name:"Balanced Reflective Thinker", desc:"You often blend a pause for reflection with a willingness to act. This suggests you can flex your approach to fit the situation, rather than defaulting to one single mode of thinking." }
+  };
+
+  // Chapter 1 scenarios
+  const CH1_SCENARIOS = [
+    {
+      prompt:"A close friend cancels plans at the last minute for the third time this month. What happens first in your mind?",
+      options:[
+        {text:"I start listing the pattern of the past few times, looking for a reason.", weight:{analytical:2}},
+        {text:"I feel a pang of hurt before I even think about why.", weight:{emotional:2}},
+        {text:"I replay the message over and over, wondering what I did wrong.", weight:{overthinking:2}},
+        {text:"I text back something light and move on with my day.", weight:{action:2}},
+        {text:"I notice I'm a little annoyed, then think about whether it's really a pattern.", weight:{balanced:2}}
+      ]
+    },
+    {
+      prompt:"You're offered a new opportunity with an unclear outcome. Your first instinct is to...",
+      options:[
+        {text:"Make a list of pros, cons, and unknowns before deciding anything.", weight:{analytical:2}},
+        {text:"Notice whether it feels exciting or unsettling in your gut.", weight:{emotional:2}},
+        {text:"Imagine every possible way it could go wrong before you can settle.", weight:{overthinking:2}},
+        {text:"Say yes and figure out the details as you go.", weight:{action:2}},
+        {text:"Take a day to sit with it, then decide with both head and gut.", weight:{balanced:2}}
+      ]
+    },
+    {
+      prompt:"Midway through a group project, something goes off-plan. How do you respond?",
+      options:[
+        {text:"Diagnose exactly where the process broke down.", weight:{analytical:2}},
+        {text:"Check in on how everyone is feeling about it first.", weight:{emotional:2}},
+        {text:"Keep running scenarios of what might happen next.", weight:{overthinking:2}},
+        {text:"Jump in and start fixing the most visible problem.", weight:{action:2}},
+        {text:"Take stock quickly, then propose a next step.", weight:{balanced:2}}
+      ]
+    },
+    {
+      prompt:"You receive feedback that stings a little. What's your instinct?",
+      options:[
+        {text:"Separate the useful parts from the parts that just felt harsh.", weight:{analytical:2}},
+        {text:"Sit with the feeling before you're ready to look at the content.", weight:{emotional:2}},
+        {text:"Reread it several times, searching for hidden meanings.", weight:{overthinking:2}},
+        {text:"Thank them and get straight to making changes.", weight:{action:2}},
+        {text:"Feel the sting, then look for one concrete thing to act on.", weight:{balanced:2}}
+      ]
+    }
+  ];
+
+  // Chapter 2 — priority cards to sort into two zones
+  const CH2_CARDS = [
+    { id:"c1", text:"Having a clear plan before I begin", weight:{analytical:1} },
+    { id:"c2", text:"Trusting how a decision feels", weight:{emotional:1} },
+    { id:"c3", text:"Getting started quickly", weight:{action:1} },
+    { id:"c4", text:"Considering every possible outcome", weight:{overthinking:1} },
+    { id:"c5", text:"Checking in with people's emotions", weight:{emotional:1} },
+    { id:"c6", text:"Weighing evidence before deciding", weight:{analytical:1} },
+    { id:"c7", text:"Adjusting course as I go", weight:{action:1} },
+    { id:"c8", text:"Revisiting a choice to double-check it", weight:{overthinking:1} },
+    { id:"c9", text:"Balancing gut feeling with logic", weight:{balanced:1} },
+    { id:"c10", text:"Taking time before responding", weight:{balanced:1} }
+  ];
+
+  // Chapter 3 — timeline mapping: order steps of "how you approach a decision"
+  const CH3_STEPS = [
+    { id:"s1", text:"Notice the first feeling or reaction", weight:{emotional:1,balanced:1} },
+    { id:"s2", text:"Gather information or think it through", weight:{analytical:1,balanced:1} },
+    { id:"s3", text:"Consider it again, and again", weight:{overthinking:2} },
+    { id:"s4", text:"Decide and take action", weight:{action:1,balanced:1} }
+  ];
+
+  /* ---------------------------------------------------
+     STATE
+  --------------------------------------------------- */
+  const state = {
+    mode:"calm",
+    step:0, // 0 start,1 ch1,2 ch2,3 ch3,4 final
+    ch1Index:0,
+    scores:{analytical:0,emotional:0,overthinking:0,action:0,balanced:0},
+    ch1Answers:[],
+    ch2Zones:{ core:[], background:[] },
+    ch2Pool: CH2_CARDS.map(c=>c.id),
+    ch3Order:[], // ids in slot order, null for empty
+  };
+
+  const STEP_LABELS = ["Start","Discover","Prioritize","Map","Reflect"];
+
+  const mainEl = document.getElementById("main");
+  const progressWrap = document.getElementById("progressWrap");
+  const progressFill = document.getElementById("progressFill");
+  const progressSteps = document.getElementById("progressSteps");
+
+  function updateProgress(){
+    if(state.step===0){ progressWrap.style.display="none"; return; }
+    progressWrap.style.display="block";
+    const pct = (state.step/4)*100;
+    progressFill.style.width = pct+"%";
+    progressSteps.innerHTML = STEP_LABELS.map((l,i)=>
+      `<span class="${i===state.step?'active':''}">${l}</span>`
+    ).join("");
+  }
+
+  function setMode(mode){
+    state.mode = mode;
+    document.body.setAttribute("data-mode", mode);
+  }
+
+  function render(){
+    updateProgress();
+    if(state.step===0) renderStart();
+    else if(state.step===1) renderChapter1();
+    else if(state.step===2) renderChapter2();
+    else if(state.step===3) renderChapter3();
+    else renderFinal();
+  }
+
+  /* ---------------------------------------------------
+     SCREEN 0 — START
+  --------------------------------------------------- */
+  function renderStart(){
+    mainEl.innerHTML = `
+      <div class="screen">
+        <p class="eyebrow">Cognitive Pattern Explorer</p>
+        <h1>Discover how you think — gently.</h1>
+        <p class="lede">A short, exploratory journey through scenarios, priorities, and timelines.
+        This is a reflective tool, not a test — there are no right answers, and nothing here diagnoses anything.</p>
+
+        <div class="mode-toggle" role="radiogroup" aria-label="Choose an experience mode">
+          <button class="mode-btn ${state.mode==='calm'?'selected':''}" role="radio" aria-checked="${state.mode==='calm'}" data-mode="calm">
+            <strong>Calm Mode</strong>
+            <span>Slower pacing, soft ambient motion, gentle transitions.</span>
+          </button>
+          <button class="mode-btn ${state.mode==='stress'?'selected':''}" role="radio" aria-checked="${state.mode==='stress'}" data-mode="stress">
+            <strong>Focused Mode</strong>
+            <span>Quicker pacing, less ambient motion, more direct.</span>
+          </button>
+        </div>
+
+        <div class="row end">
+          <button class="btn primary" id="beginBtn">Begin the exploration →</button>
+        </div>
+      </div>
+    `;
+    mainEl.querySelectorAll(".mode-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        setMode(btn.dataset.mode);
+        render();
+      });
+    });
+    document.getElementById("beginBtn").addEventListener("click", ()=>{
+      state.step = 1;
+      render();
+    });
+  }
+
+  /* ---------------------------------------------------
+     CHAPTER 1 — Discover Your Thinking Style
+  --------------------------------------------------- */
+  function renderChapter1(){
+    const idx = state.ch1Index;
+    const scenario = CH1_SCENARIOS[idx];
+    mainEl.innerHTML = `
+      <div class="screen">
+        <p class="eyebrow">Chapter 1 · Discover Your Thinking Style</p>
+        <h2>Scenario ${idx+1} of ${CH1_SCENARIOS.length}</h2>
+        <div class="scenario-card">
+          <p class="lede" style="margin-bottom:0;">${scenario.prompt}</p>
+          <div class="options" role="group" aria-label="Choose the response closest to how you'd react">
+            ${scenario.options.map((opt,i)=>`
+              <button class="option" data-i="${i}" tabindex="0">${opt.text}</button>
+            `).join("")}
+          </div>
+        </div>
+        <footer class="nav-footer">
+          <button class="btn ghost" id="backBtn" ${idx===0 && state.step===1 ? "" : ""}>← Back</button>
+          <span></span>
+        </footer>
+      </div>
+    `;
+    mainEl.querySelectorAll(".option").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const i = parseInt(btn.dataset.i,10);
+        const opt = scenario.options[i];
+        state.ch1Answers[idx] = i;
+        applyWeights(opt.weight);
+        btn.classList.add("chosen");
+        setTimeout(()=>{
+          if(idx+1 < CH1_SCENARIOS.length){
+            state.ch1Index++;
+          } else {
+            state.step = 2;
+          }
+          render();
+        }, 260);
+      });
+    });
+    document.getElementById("backBtn").addEventListener("click", ()=>{
+      if(idx>0){ state.ch1Index--; render(); }
+      else { state.step=0; render(); }
+    });
+  }
+
+  function applyWeights(weightObj){
+    Object.keys(weightObj).forEach(k=>{
+      state.scores[k] = (state.scores[k]||0) + weightObj[k];
+    });
+  }
+
+  /* ---------------------------------------------------
+     CHAPTER 2 — Choose Your Priorities (drag cards into 2 zones)
+  --------------------------------------------------- */
+  function renderChapter2(){
+    mainEl.innerHTML = `
+      <div class="screen">
+        <p class="eyebrow">Chapter 2 · Choose Your Priorities</p>
+        <h2>Sort what matters most to you</h2>
+        <p class="lede">Drag each card into "Core to me" or "In the background." On touch devices, tap a card to lift it, then tap a zone to place it. Keyboard users can focus a card and use Enter to cycle its placement.</p>
+
+        <div class="drop-zones">
+          <div class="drop-zone" id="zone-core" data-zone="core">
+            <div class="drop-zone-label sans">Core to me</div>
+          </div>
+          <div class="drop-zone" id="zone-background" data-zone="background">
+            <div class="drop-zone-label sans">In the background</div>
+          </div>
+        </div>
+
+        <div class="drag-instructions sans">Unsorted cards</div>
+        <div class="card-pool" id="cardPool"></div>
+
+        <footer class="nav-footer">
+          <button class="btn ghost" id="backBtn">← Back</button>
+          <button class="btn primary" id="nextBtn" disabled>Continue →</button>
+        </footer>
+      </div>
+    `;
+    renderCh2Cards();
+
+    document.getElementById("backBtn").addEventListener("click", ()=>{ state.step=1; render(); });
+    document.getElementById("nextBtn").addEventListener("click", ()=>{ state.step=3; render(); });
+
+    setupDropTarget(document.getElementById("cardPool"), "pool");
+    setupDropTarget(document.getElementById("zone-core"), "core");
+    setupDropTarget(document.getElementById("zone-background"), "background");
+  }
+
+  function findCh2Card(id){ return CH2_CARDS.find(c=>c.id===id); }
+
+  function renderCh2Cards(){
+    const pool = document.getElementById("cardPool");
+    const core = document.getElementById("zone-core");
+    const bg = document.getElementById("zone-background");
+    pool.innerHTML = "";
+    // clear zone content except label
+    [core, bg].forEach(z=>{
+      const label = z.querySelector(".drop-zone-label");
+      z.innerHTML = "";
+      z.appendChild(label);
+    });
+
+    state.ch2Pool.forEach(id => pool.appendChild(makeDragCard(id, findCh2Card(id).text, "ch2")));
+    state.ch2Zones.core.forEach(id => core.appendChild(makeDragCard(id, findCh2Card(id).text, "ch2")));
+    state.ch2Zones.background.forEach(id => bg.appendChild(makeDragCard(id, findCh2Card(id).text, "ch2")));
+
+    const total = CH2_CARDS.length;
+    const sorted = state.ch2Zones.core.length + state.ch2Zones.background.length;
+    const nextBtn = document.getElementById("nextBtn");
+    if(nextBtn) nextBtn.disabled = sorted < total;
+  }
+
+  function ch2MoveCard(id, destZone){
+    // remove from all
+    state.ch2Pool = state.ch2Pool.filter(x=>x!==id);
+    state.ch2Zones.core = state.ch2Zones.core.filter(x=>x!==id);
+    state.ch2Zones.background = state.ch2Zones.background.filter(x=>x!==id);
+    if(destZone==="pool") state.ch2Pool.push(id);
+    else if(destZone==="core") state.ch2Zones.core.push(id);
+    else if(destZone==="background") state.ch2Zones.background.push(id);
+    recomputeCh2Weights();
+    renderCh2Cards();
+  }
+
+  function recomputeCh2Weights(){
+    // reset ch2 contribution isn't tracked separately from ch1, so we recompute from scratch each time
+    // Strategy: store contribution amounts and subtract/add on change instead of full recompute,
+    // to avoid double counting we keep a dedicated ch2 score map applied on top of base scores.
+    // Simplify: maintain state.ch2ScoreApplied, then diff.
+    if(!state.ch2ScoreApplied) state.ch2ScoreApplied = {};
+    // subtract old
+    Object.keys(state.ch2ScoreApplied).forEach(k=>{
+      state.scores[k] -= state.ch2ScoreApplied[k];
+    });
+    const newApplied = {};
+    state.ch2Zones.core.forEach(id=>{
+      const card = findCh2Card(id);
+      Object.keys(card.weight).forEach(k=>{
+        newApplied[k] = (newApplied[k]||0) + card.weight[k]*1.5; // core counts more
+      });
+    });
+    state.ch2Zones.background.forEach(id=>{
+      const card = findCh2Card(id);
+      Object.keys(card.weight).forEach(k=>{
+        newApplied[k] = (newApplied[k]||0) + card.weight[k]*0.5;
+      });
+    });
+    Object.keys(newApplied).forEach(k=>{
+      state.scores[k] = (state.scores[k]||0) + newApplied[k];
+    });
+    state.ch2ScoreApplied = newApplied;
+  }
+
+  /* ---------------------------------------------------
+     CHAPTER 3 — Map Your Thinking (timeline ordering)
+  --------------------------------------------------- */
+  function renderChapter3(){
+    if(state.ch3Order.length === 0){
+      // init shuffled pool, empty slots
+      state.ch3Pool = shuffle(CH3_STEPS.map(s=>s.id));
+      state.ch3Order = new Array(CH3_STEPS.length).fill(null);
+    }
+    mainEl.innerHTML = `
+      <div class="screen">
+        <p class="eyebrow">Chapter 3 · Map Your Thinking</p>
+        <h2>Put these steps in the order you usually experience them</h2>
+        <p class="lede">Drag each step into the timeline below, top to bottom. This helps map the shape of your process, not just a single moment.</p>
+
+        <div class="timeline" id="timeline"></div>
+
+        <div class="drag-instructions sans">Unplaced steps</div>
+        <div class="card-pool" id="ch3Pool"></div>
+
+        <footer class="nav-footer">
+          <button class="btn ghost" id="backBtn">← Back</button>
+          <button class="btn primary" id="nextBtn" disabled>See my reflection →</button>
+        </footer>
+      </div>
+    `;
+    renderCh3();
+    document.getElementById("backBtn").addEventListener("click", ()=>{ state.step=2; render(); });
+    document.getElementById("nextBtn").addEventListener("click", ()=>{
+      applyCh3Weights();
+      state.step=4; render();
+    });
+  }
+
+  function findCh3(id){ return CH3_STEPS.find(s=>s.id===id); }
+
+  function renderCh3(){
+    const timeline = document.getElementById("timeline");
+    const pool = document.getElementById("ch3Pool");
+    timeline.innerHTML = "";
+    pool.innerHTML = "";
+
+    state.ch3Order.forEach((id, i)=>{
+      const slot = document.createElement("div");
+      slot.className = "timeline-slot";
+      slot.dataset.slotIndex = i;
+      slot.innerHTML = `<div class="step-num sans">${i+1}</div><div class="slot-content"></div>`;
+      if(id){
+        slot.querySelector(".slot-content").appendChild(makeDragCard(id, findCh3(id).text, "ch3"));
+      } else {
+        slot.querySelector(".slot-content").innerHTML = `<span class="sans" style="color:var(--ink-dim);font-size:0.85rem;">Drop a step here</span>`;
+      }
+      timeline.appendChild(slot);
+      setupDropTarget(slot, "slot-"+i);
+    });
+
+    state.ch3Pool.forEach(id=>{
+      pool.appendChild(makeDragCard(id, findCh3(id).text, "ch3"));
+    });
+    setupDropTarget(pool, "ch3pool");
+
+    const nextBtn = document.getElementById("nextBtn");
+    if(nextBtn) nextBtn.disabled = state.ch3Order.some(x=>x===null);
+  }
+
+  function ch3MoveCard(id, dest){
+    // remove from pool and any slot
+    state.ch3Pool = state.ch3Pool.filter(x=>x!==id);
+    state.ch3Order = state.ch3Order.map(x=> x===id ? null : x);
+    if(dest === "ch3pool"){
+      state.ch3Pool.push(id);
+    } else if(dest.startsWith("slot-")){
+      const i = parseInt(dest.split("-")[1],10);
+      if(state.ch3Order[i]){
+        // bump existing card back to pool
+        state.ch3Pool.push(state.ch3Order[i]);
+      }
+      state.ch3Order[i] = id;
+    }
+    renderCh3();
+  }
+
+  function applyCh3Weights(){
+    if(state.ch3Applied) return; // avoid double apply
+    state.ch3Order.forEach((id, i)=>{
+      if(!id) return;
+      const step = findCh3(id);
+      // reward correct-ish emphasis by position match with a mild flat weight regardless of order,
+      // plus small bonus for placing "overthinking" step later increasing loop score
+      Object.keys(step.weight).forEach(k=>{
+        state.scores[k] = (state.scores[k]||0) + step.weight[k];
+      });
+    });
+    state.ch3Applied = true;
+  }
+
+  /* ---------------------------------------------------
+     SHARED DRAG & DROP + TOUCH FALLBACK
+  --------------------------------------------------- */
+  let touchLifted = null; // {id, source, chapter}
+
+  function makeDragCard(id, text, chapter){
+    const el = document.createElement("div");
+    el.className = "drag-card";
+    el.textContent = text;
+    el.draggable = true;
+    el.tabIndex = 0;
+    el.dataset.id = id;
+    el.dataset.chapter = chapter;
+    el.setAttribute("role","button");
+    el.setAttribute("aria-label", text + ". Draggable card. Press Enter to lift or place.");
+
+    el.addEventListener("dragstart", (e)=>{
+      e.dataTransfer.setData("text/plain", JSON.stringify({id, chapter}));
+      e.dataTransfer.effectAllowed = "move";
+      el.classList.add("dragging");
+    });
+    el.addEventListener("dragend", ()=>{ el.classList.remove("dragging"); });
+
+    // touch fallback: tap to lift, tap a zone to place
+    el.addEventListener("click", (e)=>{
+      if(el.classList.contains("dragging")) return;
+      handleTapLift(id, chapter, el);
+    });
+    el.addEventListener("keydown",(e)=>{
+      if(e.key==="Enter" || e.key===" "){
+        e.preventDefault();
+        handleTapLift(id, chapter, el);
+      }
+    });
+
+    if(touchLifted && touchLifted.id === id){
+      el.classList.add("touch-lifted");
+    }
+    return el;
+  }
+
+  function handleTapLift(id, chapter, el){
+    if(touchLifted && touchLifted.id === id){
+      // deselect
+      touchLifted = null;
+      el.classList.remove("touch-lifted");
+      return;
+    }
+    touchLifted = { id, chapter };
+    // re-render to show lifted highlight (cheap: just toggle classes)
+    document.querySelectorAll(".drag-card").forEach(c=>c.classList.remove("touch-lifted"));
+    el.classList.add("touch-lifted");
+  }
+
+  function setupDropTarget(el, zoneId){
+    el.addEventListener("dragover", (e)=>{
+      e.preventDefault();
+      el.classList.add("dragover");
+    });
+    el.addEventListener("dragleave", ()=>{ el.classList.remove("dragover"); });
+    el.addEventListener("drop", (e)=>{
+      e.preventDefault();
+      el.classList.remove("dragover");
+      let data;
+      try{ data = JSON.parse(e.dataTransfer.getData("text/plain")); } catch(err){ return; }
+      routeMove(data.id, data.chapter, zoneId);
+    });
+    // touch fallback: tap a zone while a card is lifted
+    el.addEventListener("click", (e)=>{
+      // avoid interfering with card's own click (bubbled) - only handle if the click target IS the zone/pool background
+      if(!touchLifted) return;
+      // if the click came from a drag-card, that card's own click handler already ran (toggle lift).
+      // We only want zone-placement when clicking empty zone area or a different card's zone.
+      if(e.target.closest(".drag-card") && e.target.closest(".drag-card").dataset.id === touchLifted.id) return;
+      const {id, chapter} = touchLifted;
+      touchLifted = null;
+      routeMove(id, chapter, zoneId);
+    });
+  }
+
+  function routeMove(id, chapter, zoneId){
+    if(chapter === "ch2"){
+      if(zoneId==="pool" || zoneId==="core" || zoneId==="background"){
+        ch2MoveCard(id, zoneId);
+      }
+    } else if(chapter === "ch3"){
+      if(zoneId==="ch3pool" || zoneId.startsWith("slot-")){
+        ch3MoveCard(id, zoneId);
+      }
+    }
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  /* ---------------------------------------------------
+     FINAL REFLECTION JOURNAL
+  --------------------------------------------------- */
+  function renderFinal(){
+    const total = Object.values(state.scores).reduce((a,b)=>a+Math.max(b,0),0) || 1;
+    const percentages = {};
+    Object.keys(state.scores).forEach(k=>{
+      percentages[k] = Math.round((Math.max(state.scores[k],0)/total)*100);
+    });
+    // normalize rounding to sum ~100 (not critical, cosmetic)
+    const sorted = Object.entries(percentages).sort((a,b)=>b[1]-a[1]);
+    const top = sorted[0][0];
+    const second = sorted[1][0];
+
+    mainEl.innerHTML = `
+      <div class="screen">
+        <p class="eyebrow">Final Reflection Journal</p>
+        <h1>Your thinking pattern snapshot</h1>
+        <p class="lede">This is a reflective mirror, not a verdict. People move between styles depending on context, mood, and stakes.</p>
+
+        <div class="insight-block">
+          <div class="tag">${TENDENCIES[top].name}</div>
+          <p class="lede" style="margin-bottom:8px;">${TENDENCIES[top].desc}</p>
+          <p class="lede" style="margin-bottom:0;font-size:0.95rem;">You also showed notable traces of <strong>${TENDENCIES[second].name}</strong> — ${TENDENCIES[second].desc.toLowerCase()}</p>
+        </div>
+
+        <div class="insight-block">
+          <h2 style="font-size:1.15rem;margin-bottom:16px;">Your breakdown</h2>
+          ${sorted.map(([key,pct])=>`
+            <div class="bar-row">
+              <div class="bar-label"><span>${TENDENCIES[key].name}</span><span>${pct}%</span></div>
+              <div class="bar-track"><div class="bar-fill" data-pct="${pct}"></div></div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="insight-block">
+          <h2 style="font-size:1.15rem;margin-bottom:10px;">A gentle note</h2>
+          <p class="lede" style="margin-bottom:0;">Thinking patterns are tendencies, not fixed identities. Context, rest, and stress can all shift how you show up. Consider this a starting point for curiosity about your own mind, not a label to carry around.</p>
+        </div>
+
+        <footer class="nav-footer">
+          <button class="btn ghost" id="restartBtn">↺ Start over</button>
+          <span></span>
+        </footer>
+      </div>
+    `;
+    // animate bars after paint
+    requestAnimationFrame(()=>{
+      mainEl.querySelectorAll(".bar-fill").forEach(el=>{
+        el.style.width = el.dataset.pct + "%";
+      });
+    });
+    document.getElementById("restartBtn").addEventListener("click", ()=>{
+      resetState();
+      render();
+    });
+  }
+
+  function resetState(){
+    state.step = 0;
+    state.ch1Index = 0;
+    state.scores = {analytical:0,emotional:0,overthinking:0,action:0,balanced:0};
+    state.ch1Answers = [];
+    state.ch2Zones = { core:[], background:[] };
+    state.ch2Pool = CH2_CARDS.map(c=>c.id);
+    state.ch2ScoreApplied = {};
+    state.ch3Order = [];
+    state.ch3Pool = [];
+    state.ch3Applied = false;
+    touchLifted = null;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
