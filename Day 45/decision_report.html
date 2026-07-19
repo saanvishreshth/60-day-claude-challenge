@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-main:#0f0f14;
+    --bg-card:#1a1a24;
+    --bg-card-alt:#1e1e2e;
+    --text-primary:#f0f0f5;
+    --text-secondary:#8888a0;
+    --accent-green:#34d399;
+    --accent-red:#f87171;
+    --accent-blue:#60a5fa;
+    --accent-gold:#fbbf24;
+    --accent-purple:#a78bfa;
+    --border-subtle:rgba(255,255,255,0.06);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg-main);
+    color:var(--text-primary);
+    font-family:'Inter','Segoe UI',system-ui,sans-serif;
+    padding:0 0 40px 0;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px;}
+
+  header{
+    padding:40px 20px 24px 20px;
+    text-align:left;
+  }
+  header .inner{max-width:720px;margin:0 auto;}
+  .title{font-size:28px;font-weight:800;letter-spacing:0.5px;}
+  .subtitle{font-size:16px;color:var(--text-secondary);margin-top:6px;}
+  .date{font-size:12px;color:var(--text-secondary);margin-top:10px;}
+  .gradient-line{
+    height:2px;width:100%;
+    background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple),var(--accent-gold));
+    margin-top:20px;
+  }
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border-subtle);
+    border-radius:16px;
+    padding:28px;
+    margin-top:28px;
+    box-shadow:0 4px 24px rgba(0,0,0,0.3);
+    transition:transform 0.2s ease;
+    border-left:4px solid var(--accent-blue);
+  }
+  .card:hover{transform:translateY(-2px);}
+
+  .card.decision{border-left-color:var(--accent-blue);}
+  .card.options{border-left-color:var(--accent-green);}
+  .card.assumptions{border-left-color:var(--accent-purple);}
+  .card.matrix{border-left-color:var(--accent-blue);}
+  .card.premortem{border-left-color:var(--accent-red);}
+  .card.plan{border-left-color:var(--accent-green);}
+  .card.verdict{
+    border-left-color:var(--accent-gold);
+    background:var(--bg-card-alt);
+    padding:32px;
+    box-shadow:0 0 20px rgba(251,191,36,0.15), 0 4px 24px rgba(0,0,0,0.3);
+  }
+  .card.shareable{border-left-color:var(--accent-gold);}
+
+  .section-title{
+    font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+    margin:0 0 16px 0;
+  }
+  .decision .section-title{color:var(--accent-blue);}
+  .options .section-title{color:var(--accent-green);}
+  .assumptions .section-title{color:var(--accent-purple);}
+  .matrix .section-title{color:var(--accent-blue);}
+  .premortem .section-title{color:var(--accent-red);}
+  .plan .section-title{color:var(--accent-green);}
+  .verdict .section-title{color:var(--accent-gold);}
+  .shareable .section-title{color:var(--accent-gold);}
+
+  p{font-size:15px;line-height:1.7;margin:0 0 10px 0;}
+  .label{font-size:12px;font-weight:500;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;}
+
+  /* Option cards */
+  .option-card{
+    background:var(--bg-card-alt);
+    border-radius:12px;
+    padding:20px;
+    margin-top:16px;
+    border:1px solid var(--border-subtle);
+  }
+  .option-name{font-size:17px;font-weight:700;margin-bottom:10px;}
+  .opt-A .option-name{color:var(--accent-blue);}
+  .opt-B .option-name{color:var(--accent-green);}
+  .option-row{margin-top:10px;}
+  .tag-good{color:var(--accent-green);font-weight:600;font-size:13px;}
+  .tag-bad{color:var(--accent-red);font-weight:600;font-size:13px;}
+  .tag-hidden{color:var(--accent-blue);font-weight:600;font-size:13px;}
+  .tag-value{color:var(--accent-gold);font-weight:600;font-size:13px;}
+
+  ul{margin:8px 0;padding-left:20px;}
+  li{font-size:15px;line-height:1.7;margin-bottom:6px;}
+  .bias{color:var(--accent-purple);font-weight:700;}
+
+  /* Matrix bars */
+  .matrix-row{display:flex;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .matrix-label{width:40%;font-size:13px;color:var(--text-secondary);font-weight:500;padding-right:10px;}
+  .bar-group{width:60%;display:flex;flex-direction:column;gap:6px;}
+  .bar-container{
+    height:28px;background:rgba(255,255,255,0.05);border-radius:8px;
+    position:relative;overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;border-radius:8px;
+    display:flex;align-items:center;justify-content:flex-end;
+    padding-right:8px;color:white;font-weight:700;font-size:13px;
+    width:0%;
+    animation:growBar 0.8s ease-out forwards;
+  }
+  .bar-A{background:linear-gradient(90deg,#60a5fa,#3b82f6);}
+  .bar-B{background:linear-gradient(90deg,#34d399,#10b981);}
+  @keyframes growBar{ to { width: var(--final-width); } }
+
+  .total-row{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:20px;padding:16px;border-radius:10px;
+    background:rgba(255,255,255,0.04);font-weight:800;font-size:16px;
+  }
+  .winner-badge{
+    display:inline-block;background:var(--accent-gold);color:#0f0f14;
+    font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;margin-left:8px;
+    text-transform:uppercase;letter-spacing:0.5px;
+  }
+
+  /* Premortem */
+  .premortem-option{margin-top:18px;}
+  .premortem-option h4{font-size:15px;font-weight:700;color:var(--text-primary);margin:0 0 8px 0;}
+
+  /* 7 day plan */
+  .day-row{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start;}
+  .day-label{
+    min-width:64px;font-size:12px;font-weight:700;color:var(--accent-green);
+    background:rgba(52,211,153,0.1);padding:4px 8px;border-radius:6px;text-align:center;height:fit-content;
+  }
+  .day-text{font-size:14px;line-height:1.6;color:var(--text-primary);}
+
+  /* Verdict */
+  .verdict-name{font-size:30px;font-weight:800;color:var(--accent-gold);margin-bottom:12px;}
+  .hard-truth{font-style:italic;color:var(--text-secondary);margin-top:16px;font-size:14px;}
+
+  /* Shareable */
+  .share-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;}
+  .mini-card{
+    flex:1;min-width:180px;background:var(--bg-card-alt);
+    padding:16px;border-radius:12px;border:1px solid var(--border-subtle);
+    display:flex;flex-direction:column;justify-content:space-between;min-height:170px;
+  }
+  .mini-title{font-size:11px;color:var(--text-secondary);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;margin-bottom:10px;}
+  .mini-body{font-size:13px;line-height:1.5;flex-grow:1;}
+  .watermark{font-size:10px;color:var(--text-secondary);margin-top:10px;opacity:0.6;}
+
+  footer{text-align:center;color:var(--text-secondary);font-size:12px;margin-top:40px;}
+
+  @media (max-width:600px){
+    .card{padding:20px;}
+    .matrix-label{width:100%;margin-bottom:6px;}
+    .bar-group{width:100%;}
+    .matrix-row{flex-direction:column;}
+    .share-row{flex-direction:column;}
+    .title{font-size:24px;}
+    .section-title{font-size:17px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <div class="title">DECISION REPORT</div>
+    <div class="subtitle">SDE Placement Prep vs. Full-Stack Projects</div>
+    <div class="date">July 19, 2026</div>
+    <div class="gradient-line"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- SECTION 1 -->
+  <div class="card decision">
+    <div class="section-title">The Real Decision</div>
+    <p>The real choice isn't "prep vs. projects" — it's whether you optimize for getting hired soon (Option A) or getting genuinely good at building things (Option B).</p>
+    <p>The trade-off: placement prep buys you resume points and interview readiness now; full-stack projects build the deep skill you said you actually want long-term.</p>
+    <p>It's hard because both feel urgent, and skipping either feels like falling behind — which is exactly the trap keeping you stuck.</p>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="card options">
+    <div class="section-title">The Case For Each Option</div>
+
+    <div class="option-card opt-A">
+      <div class="option-name">Option A — Placement Prep (DSA, interviews)</div>
+      <div class="option-row"><span class="tag-good">Strongest case:</span> It's the fastest, most direct path to landing a job — recruiters filter on DSA rounds first, so skipping this risks not even getting a shot at the roles you want.</div>
+      <div class="option-row"><span class="tag-hidden">Hidden upside:</span> The problem-solving discipline from DSA transfers into writing cleaner, more efficient code in your projects too.</div>
+      <div class="option-row"><span class="tag-bad">Biggest weakness:</span> It's largely pattern-memorization for interviews — it doesn't teach you how to actually build or ship a product.</div>
+      <div class="option-row"><span class="tag-value">Best if you value:</span> Certainty and speed — a job secured on a known timeline.</div>
+    </div>
+
+    <div class="option-card opt-B">
+      <div class="option-name">Option B — Full-Stack Projects</div>
+      <div class="option-row"><span class="tag-good">Strongest case:</span> This is the skill you said you actually want to go deep on — and real projects are what separate you in interviews and in the work itself, not just the DSA round.</div>
+      <div class="option-row"><span class="tag-hidden">Hidden upside:</span> A strong project portfolio can get you noticed outside the traditional placement funnel entirely (referrals, internships, freelance).</div>
+      <div class="option-row"><span class="tag-bad">Biggest weakness:</span> Most placement processes still gate on DSA rounds first — great projects won't save you if you can't clear that filter.</div>
+      <div class="option-row"><span class="tag-value">Best if you value:</span> Long-term craft and genuine competence over the fastest job offer.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="card assumptions">
+    <div class="section-title">Assumption Buster</div>
+    <p class="label">Assumptions you may be making</p>
+    <ul>
+      <li>That prep and projects are mutually exclusive — as if you can only ever do one.</li>
+      <li>That "falling behind" is measured against everyone else, rather than against your own actual goal.</li>
+      <li>That going deep on full-stack means abandoning placement chances entirely.</li>
+    </ul>
+    <p class="label">Biases at play</p>
+    <ul>
+      <li><span class="bias">FOMO / Social comparison bias</span> — the fear of falling behind peers, not a real gap in your own plan.</li>
+      <li><span class="bias">Status quo / paralysis bias</span> — staying stuck weighing both instead of committing to a primary focus, because committing feels riskier than staying undecided.</li>
+    </ul>
+    <p class="label">What you're definitely ignoring</p>
+    <p>You already answered this — your gut said B, go deep on one skill. The question isn't really "which one," it's "why haven't you acted on the answer you already gave yourself."</p>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="card matrix">
+    <div class="section-title">Decision Matrix</div>
+
+    <div class="matrix-row">
+      <div class="matrix-label">Life/Career Upside</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:60%;animation-delay:0.1s;">6</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:80%;animation-delay:0.2s;">8</div></div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-label">Financial Safety</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:80%;animation-delay:0.3s;">8</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:50%;animation-delay:0.4s;">5</div></div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-label">Growth & Learning</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:40%;animation-delay:0.5s;">4</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:90%;animation-delay:0.6s;">9</div></div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-label">Stress Level (10=low)</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:40%;animation-delay:0.7s;">4</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:60%;animation-delay:0.8s;">6</div></div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-label">Reversibility (10=easy)</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:70%;animation-delay:0.9s;">7</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:70%;animation-delay:1.0s;">7</div></div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-label">Long-term Alignment</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:50%;animation-delay:1.1s;">5</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:90%;animation-delay:1.2s;">9</div></div>
+      </div>
+    </div>
+    <div class="matrix-row">
+      <div class="matrix-label">Regret Risk (10=low)</div>
+      <div class="bar-group">
+        <div class="bar-container"><div class="bar-fill bar-A" style="--final-width:50%;animation-delay:1.3s;">5</div></div>
+        <div class="bar-container"><div class="bar-fill bar-B" style="--final-width:80%;animation-delay:1.4s;">8</div></div>
+      </div>
+    </div>
+
+    <div class="total-row" style="border-left:3px solid #3b82f6;">
+      <span>Option A Total</span><span>39 / 70</span>
+    </div>
+    <div class="total-row" style="border-left:3px solid #10b981;margin-top:10px;">
+      <span>Option B Total <span class="winner-badge">Winner</span></span><span>56 / 70</span>
+    </div>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="card premortem">
+    <div class="section-title">Premortem — 12 Months From Now</div>
+
+    <div class="premortem-option">
+      <h4>If Option A (Placement Prep) failed:</h4>
+      <ul>
+        <li>You cleared DSA rounds but had nothing substantial to show in the project/system-design part of interviews.</li>
+        <li>You burned out grinding problems with no real product to point to, and felt disconnected from actual engineering.</li>
+        <li>Placements didn't go as planned, and you're left with strong DSA but no deep skill to fall back on.</li>
+      </ul>
+      <p><span class="label">Early warning sign:</span> You're solving problems but can't explain how you'd build a real feature end-to-end.</p>
+      <p><span class="label">Prevention:</span> Build at least one small project in parallel, even 2 hours a week, so you have proof of skill beyond DSA.</p>
+    </div>
+
+    <div class="premortem-option">
+      <h4>If Option B (Full-Stack Projects) failed:</h4>
+      <ul>
+        <li>You built great projects but couldn't clear the DSA screening round, so you never got the interview to show them.</li>
+        <li>You spent months in "exploration" mode without a clear standard for when a project was "done."</li>
+        <li>Placement season passed and you weren't prepared for the format most companies actually test.</li>
+      </ul>
+      <p><span class="label">Early warning sign:</span> You're proud of your project but haven't solved a single DSA problem in weeks.</p>
+      <p><span class="label">Prevention:</span> Timebox daily DSA practice (even 30-45 min) so the muscle doesn't fully atrophy while you build.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="card plan">
+    <div class="section-title">7-Day Test Plan</div>
+    <div class="day-row"><div class="day-label">DAY 1-2</div><div class="day-text">Research: List 3 full-stack project ideas that stretch you, and audit how much DSA you'd realistically need for your target companies.</div></div>
+    <div class="day-row"><div class="day-label">DAY 3-4</div><div class="day-text">Experiment: Spend focused time building one feature of a chosen project — see how it actually feels to go deep vs. grind problems.</div></div>
+    <div class="day-row"><div class="day-label">DAY 5-6</div><div class="day-text">Conversation: Talk to a senior/mentor or someone recently placed — ask how they balanced prep and projects, and what they'd do differently.</div></div>
+    <div class="day-row"><div class="day-label">DAY 7</div><div class="day-text">Decide: If building the project energized you more than the problems did, commit to Option B as primary with a minimum daily DSA floor.</div></div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="card verdict">
+    <div class="section-title">The Verdict</div>
+    <div class="verdict-name">Option B: Full-Stack Projects (Primary)</div>
+    <p>It wins because it's what your gut already told you, it scores highest on growth and long-term alignment, and it's the one thing you said you actually want to get good at.</p>
+    <p>This isn't "abandon placement prep" — it's making projects your primary focus, with a small daily floor of DSA so you don't get shut out of interviews.</p>
+    <p class="hard-truth">The hard truth: you don't have a balance problem, you have a commitment problem — you already know what you want, you're just scared to stop hedging.</p>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="card shareable">
+    <div class="section-title">Shareable Cards</div>
+    <div class="share-row">
+      <div class="mini-card">
+        <div class="mini-title">Matrix Summary</div>
+        <div class="mini-body">
+          <strong style="color:var(--accent-blue)">Placement Prep:</strong> 39/70<br><br>
+          <strong style="color:var(--accent-green)">Full-Stack Projects:</strong> 56/70
+        </div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-title">Verdict</div>
+        <div class="mini-body" style="color:var(--accent-gold);font-weight:700;font-size:15px;">Full-Stack Projects wins.</div>
+        <div class="mini-body">Your gut already said B — long-term alignment beats short-term hedging.</div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-title">LinkedIn Hook</div>
+        <div class="mini-body">
+          <strong>"I stopped hedging and picked depth over speed."</strong><br><br>
+          Chose full-stack projects over pure placement grind — because long-term craft beats short-term comfort.<br>
+          What would you choose?
+        </div>
+        <div class="watermark">Built with Claude AI</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>Built with Claude AI | ABTalks 60-Day Challenge</footer>
+
+</body>
+</html>
