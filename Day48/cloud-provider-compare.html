@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Provider Compare — For Students & Certification Prep</title>
+<style>
+  :root{
+    --bg: #0f1115;
+    --panel: #161922;
+    --panel-2: #1c2029;
+    --line: #2a2f3a;
+    --ink: #e7e9ee;
+    --ink-dim: #9aa1b2;
+    --ink-faint: #656d80;
+    --accent: #ffb454;   /* signal amber — "provisioning" light */
+    --accent-2: #5ecbb0; /* confirmed / verified green */
+    --warn: #ff8a65;
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(255,180,84,0.06), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(94,203,176,0.05), transparent 45%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    min-height:100vh;
+  }
+  a{color:var(--accent);}
+
+  /* ---- top bar: styled like a region-selector console header ---- */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    padding:22px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:8px;
+    background:conic-gradient(from 180deg, var(--accent), var(--accent-2), var(--accent));
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-weight:700;color:#0f1115;font-size:13px;
+  }
+  .brand h1{font-size:16px;margin:0;letter-spacing:0.2px;}
+  .brand p{margin:0;color:var(--ink-dim);font-size:12.5px;}
+  .status-chip{
+    font-family:var(--mono);font-size:11.5px;color:var(--accent-2);
+    background:rgba(94,203,176,0.08);border:1px solid rgba(94,203,176,0.25);
+    padding:6px 10px;border-radius:20px;display:flex;align-items:center;gap:6px;
+  }
+  .status-chip .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 8px var(--accent-2);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px;}
+
+  /* ---- hero ---- */
+  .hero{padding:48px 0 28px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;color:var(--accent);
+    text-transform:uppercase;letter-spacing:1.5px;margin:0 0 12px;
+  }
+  .hero h2{
+    font-size:clamp(28px,4vw,42px);
+    margin:0 0 14px;
+    max-width:820px;
+    letter-spacing:-0.5px;
+  }
+  .hero p.sub{color:var(--ink-dim);max-width:640px;font-size:15.5px;margin:0 0 4px;}
+  .decision-context{
+    margin-top:22px;padding:14px 16px;border:1px dashed var(--line);border-radius:10px;
+    font-size:13.5px;color:var(--ink-dim);background:rgba(255,255,255,0.015);
+  }
+  .decision-context b{color:var(--ink);}
+
+  /* ---- fixed ranking ---- */
+  .ranking{margin-top:38px;}
+  .section-label{
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-faint);
+    text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .section-label::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .rank-row{
+    display:grid;
+    grid-template-columns:52px 1.6fr 90px 1fr;
+    gap:18px;
+    align-items:center;
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel);
+    margin-bottom:10px;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+  .rank-row:hover{border-color:#3a4152; transform:translateY(-1px);}
+  .rank-row.top{
+    border-color:rgba(255,180,84,0.35);
+    background:linear-gradient(135deg, rgba(255,180,84,0.06), var(--panel) 60%);
+  }
+  .rank-num{
+    font-family:var(--mono);font-size:22px;color:var(--ink-faint);font-weight:700;
+  }
+  .rank-row.top .rank-num{color:var(--accent);}
+  .rank-name{display:flex;flex-direction:column;gap:2px;}
+  .rank-name .n{font-size:16.5px;font-weight:600;}
+  .rank-name .t{font-size:12.5px;color:var(--ink-dim);}
+  .rank-score{
+    font-family:var(--mono);font-size:20px;text-align:right;color:var(--ink);
+  }
+  .rank-score .of{font-size:11px;color:var(--ink-faint);}
+  .rank-bar-track{height:6px;border-radius:4px;background:var(--panel-2);overflow:hidden;}
+  .rank-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg, var(--accent), var(--accent-2));}
+
+  /* ---- criteria grid ---- */
+  .criteria-grid{
+    margin-top:44px;
+    display:grid;
+    grid-template-columns:220px repeat(4, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .cell{background:var(--panel);padding:16px 14px;}
+  .cell.head{
+    background:var(--panel-2);
+    font-family:var(--mono);font-size:12px;color:var(--ink-dim);
+    text-transform:uppercase;letter-spacing:0.6px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+  }
+  .cell.criterion-label{
+    background:var(--panel-2);
+    font-size:13.5px;font-weight:600;color:var(--ink);
+    display:flex;align-items:center;
+  }
+  .cell.data{display:flex;flex-direction:column;gap:6px;justify-content:center;}
+  .data .val{font-family:var(--mono);font-size:14.5px;font-weight:600;}
+  .data .detail{font-size:12px;color:var(--ink-dim);line-height:1.4;}
+  .data .cite{font-size:10.5px;color:var(--ink-faint);}
+  .data .cite a{color:var(--ink-faint);text-decoration:underline;text-decoration-color:var(--line);}
+  .flag{
+    display:inline-flex;align-items:center;gap:4px;
+    font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.5px;
+    padding:2px 6px;border-radius:4px;margin-top:2px;width:fit-content;
+  }
+  .flag.estimate{background:rgba(255,138,101,0.12);color:var(--warn);border:1px solid rgba(255,138,101,0.3);}
+  .flag.discontinued{background:rgba(255,90,90,0.12);color:#ff6b6b;border:1px solid rgba(255,90,90,0.3);}
+
+  @media (max-width:900px){
+    .criteria-grid{grid-template-columns:1fr;}
+    .cell.head{display:none;}
+    .cell.criterion-label{padding-top:20px;}
+    .cell.data{border-bottom:1px solid var(--line);padding-bottom:16px;}
+    .cell.data::before{content:attr(data-provider);font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;}
+    .rank-row{grid-template-columns:36px 1fr 70px;grid-template-areas:"num name score" "num bar bar";}
+    .rank-num{grid-area:num;}
+    .rank-name{grid-area:name;}
+    .rank-score{grid-area:score;}
+    .rank-row .bar-wrap{grid-area:bar;margin-top:8px;}
+  }
+
+  /* ---- collapsible panels ---- */
+  .panel{
+    margin-top:20px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--panel);
+    overflow:hidden;
+  }
+  .panel summary{
+    list-style:none;cursor:pointer;
+    padding:18px 20px;
+    display:flex;align-items:center;justify-content:space-between;
+    font-weight:600;font-size:14.5px;
+  }
+  .panel summary::-webkit-details-marker{display:none;}
+  .panel summary .arrow{
+    font-family:var(--mono);color:var(--ink-faint);transition:transform .2s ease;font-size:13px;
+  }
+  .panel[open] summary .arrow{transform:rotate(90deg);}
+  .panel-body{padding:0 20px 22px;color:var(--ink-dim);font-size:13.5px;}
+  .panel-body h4{color:var(--ink);font-size:13px;margin:16px 0 6px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.5px;}
+  .panel-body p{margin:6px 0;}
+  .panel-body ul{margin:6px 0;padding-left:18px;}
+  .panel-body li{margin:4px 0;}
+  .conflict{
+    border-left:2px solid var(--warn);
+    padding:8px 12px;margin:10px 0;
+    background:rgba(255,138,101,0.05);
+    border-radius:0 8px 8px 0;
+    font-size:13px;
+  }
+
+  /* ---- sources panel ---- */
+  .source-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .source-list li{
+    display:flex;justify-content:space-between;gap:12px;
+    padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+    font-size:12.5px;background:var(--panel-2);flex-wrap:wrap;
+  }
+  .source-list .src-name{color:var(--ink);font-weight:500;}
+  .source-list .src-meta{color:var(--ink-faint);font-family:var(--mono);font-size:11px;}
+  .source-list a{word-break:break-all;}
+
+  footer{
+    margin-top:50px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--ink-faint);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0 0;font-size:12px;color:var(--ink-dim);}
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .legend .swatch{width:10px;height:10px;border-radius:3px;}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">λ</div>
+      <div>
+        <h1>Cloud Provider Compare</h1>
+        <p>Built for students weighing AWS · Google Cloud · Azure · DigitalOcean for coursework &amp; certification prep</p>
+      </div>
+    </div>
+    <div class="status-chip"><span class="dot"></span>Data verified as of Jul 26, 2026</div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="hero">
+      <p class="eyebrow">Fixed expert ranking — no weighting</p>
+      <h2>Which cloud provider is actually easiest to learn and get certified on right now?</h2>
+      <p class="sub">Six criteria that matter specifically for students and certification prep, scored from sourced facts only. No invented numbers — anything not independently confirmable is flagged below.</p>
+      <div class="decision-context">
+        <b>Who this is for:</b> students and self-learners comparing AWS, Google Cloud, Microsoft Azure, and DigitalOcean before committing study time to one ecosystem or one certification track.
+        <b>The one decision:</b> which provider to learn first, given free credits, certification cost, learning materials, and how forgiving the console is for a beginner.
+      </div>
+    </div>
+
+    <div class="ranking">
+      <div class="section-label">Overall ranking for students (fixed weights, not adjustable)</div>
+
+      <div class="rank-row top">
+        <div class="rank-num">01</div>
+        <div class="rank-name">
+          <div class="n">Microsoft Azure</div>
+          <div class="t">Best all-round pick for certification prep on a budget</div>
+        </div>
+        <div class="rank-score">8.4<span class="of">/10</span></div>
+        <div class="bar-wrap"><div class="rank-bar-track"><div class="rank-bar-fill" style="width:84%"></div></div></div>
+      </div>
+
+      <div class="rank-row">
+        <div class="rank-num">02</div>
+        <div class="rank-name">
+          <div class="n">Google Cloud</div>
+          <div class="t">Strong free trial and docs, steeper console learning curve</div>
+        </div>
+        <div class="rank-score">7.6<span class="of">/10</span></div>
+        <div class="bar-wrap"><div class="rank-bar-track"><div class="rank-bar-fill" style="width:76%"></div></div></div>
+      </div>
+
+      <div class="rank-row">
+        <div class="rank-num">03</div>
+        <div class="rank-name">
+          <div class="n">AWS</div>
+          <div class="t">Most jobs reference it, but the console overwhelms beginners</div>
+        </div>
+        <div class="rank-score">7.1<span class="of">/10</span></div>
+        <div class="bar-wrap"><div class="rank-bar-track"><div class="rank-bar-fill" style="width:71%"></div></div></div>
+      </div>
+
+      <div class="rank-row">
+        <div class="rank-num">04</div>
+        <div class="rank-name">
+          <div class="n">DigitalOcean</div>
+          <div class="t">Simplest UI, but no formal certification path and student credit ended</div>
+        </div>
+        <div class="rank-score">5.3<span class="of">/10</span></div>
+        <div class="bar-wrap"><div class="rank-bar-track"><div class="rank-bar-fill" style="width:53%"></div></div></div>
+      </div>
+
+      <p style="font-size:12px;color:var(--ink-faint);margin-top:10px;">
+        Scores are an editorial synthesis of the sourced data below, weighted toward what matters most for students (free credits, certification cost, and beginner usability). They are not a data point from any single source — treat them as a starting point, and check the raw facts per criterion below before deciding.
+      </p>
+    </div>
+
+    <div class="ranking">
+      <div class="section-label">Criteria breakdown — sourced data only</div>
+
+      <div class="criteria-grid">
+        <div class="cell head"></div>
+        <div class="cell head">AWS</div>
+        <div class="cell head">Google Cloud</div>
+        <div class="cell head">Microsoft Azure</div>
+        <div class="cell head">DigitalOcean</div>
+
+        <!-- Free credits -->
+        <div class="cell criterion-label">Free tier / student credits</div>
+        <div class="cell data" data-provider="AWS">
+          <div class="val">$100 (AWS Educate)</div>
+          <div class="detail">Standard AWS Educate grant is $100 in credit for verified students, on top of the general Free Tier. Some earlier reports cite as low as $35 for individually-verified students without an institutional partnership.</div>
+          <div class="cite">Source: aws.amazon.com/education/awseducate</div>
+        </div>
+        <div class="cell data" data-provider="Google Cloud">
+          <div class="val">$300 trial (all users)</div>
+          <div class="detail">Not a student-specific offer — any new customer gets $300 in credit valid for 90 days, plus an Always Free tier on 20+ products with no expiry.</div>
+          <div class="cite">Source: cloud.google.com/free</div>
+        </div>
+        <div class="cell data" data-provider="Azure">
+          <div class="val">$100/year (renewable)</div>
+          <div class="detail">Azure for Students gives verified full-time students $100 in credit for 12 months, no credit card required, and can be re-verified annually for as long as you remain a student.</div>
+          <div class="cite">Source: azure.microsoft.com/free/students</div>
+        </div>
+        <div class="cell data" data-provider="DigitalOcean">
+          <div class="val flag discontinued">Ended Aug 1, 2026</div>
+          <div class="detail">DigitalOcean's $200 GitHub Student Developer Pack credit was retired; the company left the GitHub Student Pack and the offer (including already-issued balances) expired. No dedicated student program remains as of this writing.</div>
+          <div class="cite">Source: DigitalOcean community post; aistudentdiscount.com</div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="cell criterion-label">Pricing (entry-level compute)</div>
+        <div class="cell data" data-provider="AWS">
+          <div class="val">t3.micro ~750 hrs/mo free (12 mo)</div>
+          <div class="detail">EC2 Free Tier covers a small instance for the first 12 months for new accounts, then standard on-demand billing applies.</div>
+          <div class="cite">Source: aws.amazon.com/free</div>
+        </div>
+        <div class="cell data" data-provider="Google Cloud">
+          <div class="val">e2-micro always free</div>
+          <div class="detail">One e2-micro VM per month is permanently free in eligible US regions, with no 12-month expiry — useful once trial credit runs out.</div>
+          <div class="cite">Source: cloud.google.com/free</div>
+        </div>
+        <div class="cell data" data-provider="Azure">
+          <div class="val">B1s VM ~750 hrs/mo (12 mo)</div>
+          <div class="detail">Azure's free account includes 750 hours of a B1s burstable VM for 12 months, similar structure to AWS's free tier.</div>
+          <div class="cite">Source: azure.microsoft.com/free/students; lifeatlas.site</div>
+        </div>
+        <div class="cell data" data-provider="DigitalOcean">
+          <div class="val">Droplets from $4/mo, no free tier</div>
+          <div class="detail">DigitalOcean has no ongoing always-free instance — pricing is flat and simple, but a beginner pays from day one once any trial credit is gone.</div>
+          <div class="cite">Source: digitalocean.com pricing (as reported, March 2026)</div>
+        </div>
+
+        <!-- Certification -->
+        <div class="cell criterion-label">Certification path &amp; cost</div>
+        <div class="cell data" data-provider="AWS">
+          <div class="val">Cloud Practitioner ~$100</div>
+          <div class="detail">Entry-level CLF-C02 costs about $100; associate-level exams (Solutions Architect, Developer) run roughly $150; professional/specialty exams jump to about $300.</div>
+          <div class="cite">Source: whizlabs.com; examcert.app (2026 pricing roundups)</div>
+        </div>
+        <div class="cell data" data-provider="Google Cloud">
+          <div class="val">Associate Cloud Engineer ~$125</div>
+          <div class="detail">Foundational Cloud Digital Leader is around $99; the hands-on Associate Cloud Engineer exam is about $125; professional-level exams run roughly $200.</div>
+          <div class="cite">Source: examcert.app; truecert.co (2026 pricing roundups)</div>
+        </div>
+        <div class="cell data" data-provider="Azure">
+          <div class="val">AZ-900 ~$99</div>
+          <div class="detail">Fundamentals (AZ-900) is about $99, the cheapest entry-level cloud exam among the three hyperscalers; associate-level role exams (AZ-104, AZ-204) run roughly $165.</div>
+          <div class="cite">Source: whizlabs.com; examcert.app</div>
+        </div>
+        <div class="cell data" data-provider="DigitalOcean">
+          <div class="val flag estimate">No vendor certification exists</div>
+          <div class="detail">DigitalOcean does not run a formal certification program comparable to AWS/Azure/GCP; this is a structural gap, not a missing data point.</div>
+          <div class="cite">Based on absence of any DigitalOcean certification listing on digitalocean.com or major cert-tracking sites searched</div>
+        </div>
+
+        <!-- Learning resources -->
+        <div class="cell criterion-label">Learning resources &amp; docs quality</div>
+        <div class="cell data" data-provider="AWS">
+          <div class="val">600+ hrs via AWS Educate</div>
+          <div class="detail">AWS Educate bundles 600+ hours of structured courses and labs alongside the credit grant, plus AWS Skill Builder and AWS re:Post community Q&amp;A.</div>
+          <div class="cite">Source: studentdiscounthub.com; aws.amazon.com/education/awseducate</div>
+        </div>
+        <div class="cell data" data-provider="Google Cloud">
+          <div class="val">Cloud Skills Boost + free labs</div>
+          <div class="detail">Google Cloud Skills Boost offers guided, hands-on labs often bundled with trial credit; documentation is generally praised for clarity in independent guides.</div>
+          <div class="cite">Source: cloud.google.com; general 2026 guide comparisons (tech-insider.org)</div>
+        </div>
+        <div class="cell data" data-provider="Azure">
+          <div class="val">Microsoft Learn (free, structured)</div>
+          <div class="detail">Microsoft Learn is a free, module-based training platform directly tied to certification paths, including a free AZ-900 Cloud Skills Challenge bundled with the student credit signup.</div>
+          <div class="cite">Source: learn.microsoft.com/training/student-hub</div>
+        </div>
+        <div class="cell data" data-provider="DigitalOcean">
+          <div class="val">Community tutorials (large, informal)</div>
+          <div class="detail">DigitalOcean's Community tutorial library is large and well-regarded for beginner sysadmin topics, but it is not structured into a certification curriculum.</div>
+          <div class="cite">Source: digitalocean.com/community (general reputation, not a specific cited count)</div>
+        </div>
+
+        <!-- Ease of use -->
+        <div class="cell criterion-label">Ease of use for beginners</div>
+        <div class="cell data" data-provider="AWS">
+          <div class="val flag estimate">Widely reported as steepest curve</div>
+          <div class="detail">Multiple 2026 comparison guides describe AWS's console and service catalog (200+ services) as the most complex of the major providers for newcomers; this is a qualitative consensus across sources, not a benchmarked score.</div>
+          <div class="cite">Source: digitalocean.com/resources/articles/comparing-aws-azure-gcp (industry comparison)</div>
+        </div>
+        <div class="cell data" data-provider="Google Cloud">
+          <div class="val flag estimate">Moderate — praised console, fewer services</div>
+          <div class="detail">Independent reviews consistently describe GCP's console as cleaner than AWS's, with a smaller service catalog that's easier to navigate as a beginner.</div>
+          <div class="cite">Source: digitalocean.com/resources/articles/comparing-aws-azure-gcp</div>
+        </div>
+        <div class="cell data" data-provider="Azure">
+          <div class="val flag estimate">Moderate — enterprise-oriented, denser menus</div>
+          <div class="detail">Guides note Azure's portal reflects its enterprise focus with layered pricing and settings that can make costs harder to predict for a first-time user, despite strong free learning content.</div>
+          <div class="cite">Source: digitalocean.com/resources/articles/comparing-aws-azure-gcp</div>
+        </div>
+        <div class="cell data" data-provider="DigitalOcean">
+          <div class="val flag estimate">Widely cited as simplest</div>
+          <div class="detail">DigitalOcean's own positioning and third-party reviews consistently describe its "Droplet" model and flat pricing as the most beginner-friendly of the four, deliberately trading depth for simplicity.</div>
+          <div class="cite">Source: gist.github.com DigitalOcean review, 2026</div>
+        </div>
+
+        <!-- Region availability -->
+        <div class="cell criterion-label">Global data center regions</div>
+        <div class="cell data" data-provider="AWS">
+          <div class="val">39 regions / 123 AZs</div>
+          <div class="detail">AWS reports 39 launched regions and 123 availability zones as of June 17, 2026, plus 43 Local Zones and 33 Wavelength Zones for edge use cases.</div>
+          <div class="cite">Source: techjacksolutions.com infrastructure breakdown, citing AWS-reported figures, June 17, 2026</div>
+        </div>
+        <div class="cell data" data-provider="Google Cloud">
+          <div class="val">43 regions / 130 zones</div>
+          <div class="detail">Google Cloud's own locations page lists 43 global regions and 130 zones as the current figure.</div>
+          <div class="cite">Source: cloud.google.com/about/locations (official)</div>
+        </div>
+        <div class="cell data" data-provider="Azure">
+          <div class="val">70+ regions (largest footprint)</div>
+          <div class="detail">Azure maintains the largest region count of the three hyperscalers, cited at over 70 regions across 35+ countries in 2026 industry comparisons — though exact figures vary slightly by source (one report cites 75).</div>
+          <div class="cite">Source: digitalocean.com comparison article; technologychecker.io (75-region figure) — see "conflicts" panel below</div>
+        </div>
+        <div class="cell data" data-provider="DigitalOcean">
+          <div class="val">12 regions / 15 datacenters</div>
+          <div class="detail">DigitalOcean's own documentation states 15 datacenters across 12 regions, last verified July 15, 2026 — by far the smallest footprint of the four, concentrated in North America, Europe, Asia, and Australia.</div>
+          <div class="cite">Source: docs.digitalocean.com/platform/regional-availability (official)</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="panel">
+      <summary>How this was researched <span class="arrow">▶</span></summary>
+      <div class="panel-body">
+        <p>Every data point above came from a live web search conducted July 26, 2026. Official vendor pages (aws.amazon.com, cloud.google.com, azure.microsoft.com, digitalocean.com/docs) were prioritized over third-party blogs; independent roundups (exam-cost aggregators, comparison articles) were used only where the vendor doesn't publish the figure directly, such as certification exam pricing tables and cross-provider comparisons.</p>
+
+        <h4>Conflicts found and how they were resolved</h4>
+        <div class="conflict">
+          <b>Azure region count:</b> sources disagreed — one 2026 comparison cited "70+ regions," another cited exactly "75 regions." Both are directionally consistent (Azure has by far the most regions) so the range is reported rather than a single precise number, and the discrepancy is flagged here rather than picking one arbitrarily.
+        </div>
+        <div class="conflict">
+          <b>AWS Educate student credit amount:</b> figures ranged from $35 to $100 depending on whether the student's institution has an official partnership with AWS Educate. The $100 figure (institutional partnership) is shown as the headline number since it's the most commonly cited current figure, with the lower bound noted in the detail text.
+        </div>
+        <div class="conflict">
+          <b>DigitalOcean student credit:</b> this was a moving target during research — the $200 GitHub Student Pack benefit was live earlier in 2026 but multiple DigitalOcean community threads and a partner site confirm it was retired on August 1, 2026. This is reported as a discontinued offer, not as current data, since presenting it as "$200 available" would be actively wrong by the time a reader acts on it.
+        </div>
+
+        <h4>What counts as an estimate here</h4>
+        <p>Items flagged <span class="flag estimate" style="margin-top:0;">estimate</span> are qualitative consensus judgments (e.g. "AWS's console is the steepest learning curve") drawn from how multiple independent comparison articles describe the experience — not a numeric benchmark any vendor publishes. They are included because beginner usability is genuinely part of the decision, but they carry lower confidence than a directly-sourced number like a region count or exam fee.</p>
+
+        <h4>What the overall ranking is (and isn't)</h4>
+        <p>The 01–04 ranking is an editorial synthesis, built by weighing the sourced facts above toward what a student/certification-prep user cares about most (credit availability, certification cost, and beginner usability, with region count and learning resources as secondary factors). It is not itself a citable statistic — the individual data points beneath it are the actual sourced facts, and are the right thing to check independently before deciding.</p>
+      </div>
+    </details>
+
+    <details class="panel">
+      <summary>Sources panel — every citation used <span class="arrow">▶</span></summary>
+      <div class="panel-body">
+        <ul class="source-list">
+          <li><span class="src-name">AWS Educate — official program page</span><span class="src-meta">aws.amazon.com/education/awseducate</span></li>
+          <li><span class="src-name">AWS Educate Student Discount 2026 guide</span><span class="src-meta">studentdiscounthub.com/en/deals/aws-edu</span></li>
+          <li><span class="src-name">AWS Free Tier — official page</span><span class="src-meta">aws.amazon.com/free</span></li>
+          <li><span class="src-name">AWS Global Infrastructure Regions &amp; AZs — official page</span><span class="src-meta">aws.amazon.com/about-aws/global-infrastructure/regions_az</span></li>
+          <li><span class="src-name">Cloud Regions and Availability Zones Explained (2026)</span><span class="src-meta">techjacksolutions.com — verified June 17, 2026</span></li>
+          <li><span class="src-name">Google Cloud Free Program — official page</span><span class="src-meta">cloud.google.com/free</span></li>
+          <li><span class="src-name">Google Cloud Global Locations — official page</span><span class="src-meta">cloud.google.com/about/locations</span></li>
+          <li><span class="src-name">Azure for Students — official offer page</span><span class="src-meta">azure.microsoft.com/free/students</span></li>
+          <li><span class="src-name">Azure for Students — official offer terms</span><span class="src-meta">azure.microsoft.com/pricing/offers/ms-azr-0170p</span></li>
+          <li><span class="src-name">Microsoft Learn Student Hub — Cloud Basics with Azure</span><span class="src-meta">learn.microsoft.com/training/student-hub</span></li>
+          <li><span class="src-name">DigitalOcean Regional Availability — official docs</span><span class="src-meta">docs.digitalocean.com/platform/regional-availability — verified Jul 15, 2026</span></li>
+          <li><span class="src-name">DigitalOcean GitHub Student Pack credit retirement thread</span><span class="src-meta">github.com/orgs/community/discussions/200663</span></li>
+          <li><span class="src-name">DigitalOcean $200 Student Credit — Ended August 2026</span><span class="src-meta">aistudentdiscount.com/digitalocean-github-student-developer-pack-credits</span></li>
+          <li><span class="src-name">DigitalOcean Review 2026 (pricing figures)</span><span class="src-meta">gist.github.com — DigitalOcean review gist, March 2026</span></li>
+          <li><span class="src-name">Comparing AWS, Azure, and GCP for Startups in 2026</span><span class="src-meta">digitalocean.com/resources/articles/comparing-aws-azure-gcp</span></li>
+          <li><span class="src-name">Cloud Provider Traffic Share 2026 (Azure region count)</span><span class="src-meta">technologychecker.io/blog/cloud-provider-traffic-share</span></li>
+          <li><span class="src-name">Cloud Training Costs: AWS, Azure &amp; GCP Team Budgeting</span><span class="src-meta">whizlabs.com/blog/cloud-training-costs-for-teams</span></li>
+          <li><span class="src-name">IT Certification Exam Costs 2026: Full Price List</span><span class="src-meta">examcert.app/blog/it-certification-exam-costs-2026</span></li>
+          <li><span class="src-name">AWS vs Azure vs GCP: Best Cloud Certifications 2026</span><span class="src-meta">truecert.co/best/cloud-certifications</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--accent-2)"></span>Directly sourced fact</span>
+      <span><span class="swatch" style="background:var(--warn)"></span>Estimate / qualitative consensus (flagged inline)</span>
+      <span><span class="swatch" style="background:#ff6b6b"></span>Offer discontinued / no longer available</span>
+    </div>
+
+    <footer>
+      <span>Prices, credits, and offer terms change often — verify directly with each provider before enrolling or budgeting.</span>
+      <span>Data snapshot: July 26, 2026</span>
+    </footer>
+
+  </div>
+
+</body>
+</html>
